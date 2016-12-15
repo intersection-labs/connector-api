@@ -1,0 +1,16 @@
+{
+  "name": "connector-api",
+  "scripts": {
+  },
+  "env": {
+    "environment": "staging"
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+
+  ]
+}
