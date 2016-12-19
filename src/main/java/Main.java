@@ -19,7 +19,7 @@ public class Main {
     staticFileLocation("/public");
 
     get("/hello", (req, res) -> {
-      return "Hello, World!";
+      return "Hello, World (3)!";
     });
   }
 
