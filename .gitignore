@@ -11,8 +11,14 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-# Mac files
+# OS and Eclipse files
 .DS_Store
+.classpath
+.project
 
 # Target directory
 target
+/bin/
+
+# Local environment variables
+.env

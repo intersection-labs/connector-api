@@ -28,6 +28,11 @@
             <artifactId>heroku-jdbc</artifactId>
             <version>0.1.1</version>
         </dependency>
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
         <dependency>
             <groupId>com.google.gdata</groupId>
             <artifactId>core</artifactId>
@@ -60,7 +65,7 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                       <manifest>
-                          <mainClass>Main</mainClass>
+                          <mainClass>im.connector.api.Main</mainClass>
                       </manifest>
                     </archive>
                 </configuration>
