@@ -1,4 +1,4 @@
-package io.unequal.reuse.rest;
+package io.unequal.reuse.http;
 import java.util.AbstractList;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;

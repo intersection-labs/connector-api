@@ -1,4 +1,4 @@
-package io.unequal.reuse.rest;
+package im.connector.api;
 import java.util.Map;
 import java.util.HashMap;
 import io.unequal.reuse.util.Checker;

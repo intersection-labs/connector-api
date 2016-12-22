@@ -1,4 +1,4 @@
-package io.unequal.reuse.rest;
+package io.unequal.reuse.http;
 
 public enum Env {
 

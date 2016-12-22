@@ -1,4 +1,4 @@
-package io.unequal.reuse.rest;
+package io.unequal.reuse.http;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
