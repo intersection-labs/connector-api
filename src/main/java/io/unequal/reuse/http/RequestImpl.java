@@ -81,7 +81,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements Request {
 			}
 			else {
 				try {
-					return URLDecoder.decode(qs, CHARSET);
+					return URLDecoder.decode(qs, Constants.CHARSET);
 				}
 				catch(UnsupportedEncodingException uee) {
 					throw new IntegrityException(uee);
@@ -206,7 +206,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements Request {
 			}
 			return null;
 		}
-		return JsonObject.parse(URLDecoder.decode(sb.toString(), CHARSET));
+		return JsonObject.parse(URLDecoder.decode(sb.toString(), Constants.CHARSET));
 	}
 
 	public JsonObject readDataAsJson() throws IOException {

@@ -71,7 +71,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 		// TODO check if the Servlet API already sets the correct character set (in which case we don't need to do this)
 		if(contentType.startsWith("text")) {
 			if(contentType.indexOf("charset") == -1) {
-				contentType = contentType+"; charset="+Request.CHARSET;
+				contentType = contentType+"; charset="+Constants.CHARSET;
 			}
 		}
 		super.setContentType(contentType);
@@ -104,7 +104,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 
 	public void sendError(StatusCode status, JsonObject jContent, Object ... params) throws IOException {
 		Checker.checkNull(status);
-		_sendContentType(JSON);
+		_sendContentType(Constants.JSON);
 		setStatus(status.httpCode);
 		JsonObject jResponse = new JsonObject();
 		JsonObject jHeader = jResponse.addChild("header");
@@ -131,7 +131,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 
 	public void sendError(EndpointException e) throws IOException {
 		Checker.checkNull(e);
-		_sendContentType(JSON);
+		_sendContentType(Constants.JSON);
 		setStatus(e.getErrorCode().httpCode);
 		JsonObject jResponse = new JsonObject();
 		JsonObject jHeader = jResponse.addChild("header");

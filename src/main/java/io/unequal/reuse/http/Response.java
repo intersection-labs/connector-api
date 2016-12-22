@@ -5,9 +5,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface Response extends HttpServletResponse {
 
-	// TODO move somewhere else
-	public static final String JSON = "application/json";		
-
 	public boolean hasCookie(String name, String path);
 	public void removeCookie(String name, String path, String domain);
 	public void setContentType(String contentType);

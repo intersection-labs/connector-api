@@ -15,6 +15,10 @@ class EndpointServlet extends HttpServlet {
 		_e = e;
 	}
 	
+	public void doHead(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		_handle(HttpMethod.GET, req, new HeadResponse(resp));
+	}
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		_handle(HttpMethod.GET, req, resp);
 	}
@@ -24,8 +28,9 @@ class EndpointServlet extends HttpServlet {
 	}
 
 	private void _handle(HttpMethod method, HttpServletRequest httpReq, HttpServletResponse httpResp) throws IOException {
+		httpReq.setCharacterEncoding(Constants.CHARSET);
 		Request req = new RequestImpl(httpReq);
-		Response resp = new ResponseImpl(httpResp, Response.JSON);
+		Response resp = new ResponseImpl(httpResp, Constants.JSON);
 		try {
 			if(method == HttpMethod.GET) {
 				_e.get(req, resp);
