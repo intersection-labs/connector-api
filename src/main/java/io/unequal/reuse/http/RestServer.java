@@ -24,8 +24,17 @@ public class RestServer {
 		_root = new ServletContextHandler(ServletContextHandler.NO_SECURITY | ServletContextHandler.NO_SESSIONS);
 	}
 
-	public void endpoint(Object o, String ... routes) {
-		System.out.println(routes[0]);
+	public void endpoint(Endpoint endpoint, String ... routes) {
+		Checker.checkNull(endpoint);
+		Checker.checkEmpty(routes);
+		Checker.checkNullElements(routes);
+		//TODO  Check is server is running
+		
+		ServletHolder holder = new ServletHolder(new EndpointServlet(endpoint));
+		for(String route : routes) {
+			_root.addServlet(holder, route);
+		}
+		/*
 		_root.addServlet(new ServletHolder(new HttpServlet() {
 			public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 				System.out.println("endpoint called");
@@ -36,6 +45,7 @@ public class RestServer {
 				out.close();
 			}
 		}), routes[0]);
+		*/
 	}
 
 	public void run() throws Exception {
@@ -43,11 +53,13 @@ public class RestServer {
 		_root.setContextPath("/");
 		_root.setErrorHandler(new ErrorHandler() {
 			protected void generateAcceptableResponse(Request base, HttpServletRequest req, HttpServletResponse resp, int code, String message) throws IOException {
-				resp.setContentType("text/plain; charset=UTF-8");
-				PrintWriter out = resp.getWriter();
-				out.println("Not found");
-				out.close();
-				base.setHandled(true);
+				if(code == 404) {
+					base.setHandled(true);
+					resp.setContentType("text/plain; charset=UTF-8");
+					PrintWriter out = resp.getWriter();
+					out.println("Not found");
+					out.close();
+				}
 			}
 		});
 		server.setHandler(_root);
