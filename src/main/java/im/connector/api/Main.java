@@ -3,11 +3,8 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Map;
-import java.net.URI;
-import java.net.URISyntaxException;
 import com.heroku.sdk.jdbc.DatabaseUrl;
 import io.unequal.reuse.http.Env;
-import io.unequal.reuse.http.JsonObject;
 import io.unequal.reuse.http.RestServer;
 import io.unequal.reuse.http.Settings;
 

@@ -1,7 +1,11 @@
 package io.unequal.reuse.http;
 
+
 public abstract class Endpoint {
 	
+	protected Endpoint() {
+	}
+
 	public void get(Request req, Response resp) throws Exception {
 		throw new MethodNotAllowedException(Request.HttpMethod.GET);
 	}

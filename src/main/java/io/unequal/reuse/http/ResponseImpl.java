@@ -19,6 +19,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	private boolean _committed;
 	private boolean _contentTypeSet;
 	
+	// TODO contentType should not be required
 	public ResponseImpl(HttpServletResponse response, String contentType) {
 		super(response);
 		_cookieNames = new HashSet<String>();

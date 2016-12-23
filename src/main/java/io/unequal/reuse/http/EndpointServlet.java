@@ -8,6 +8,7 @@ import io.unequal.reuse.util.IntegrityException;
 import io.unequal.reuse.http.Request.HttpMethod;
 
 
+// For RestServer:
 class EndpointServlet extends HttpServlet {
 
 	private final Endpoint _e;
