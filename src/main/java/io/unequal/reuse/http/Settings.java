@@ -1,4 +1,5 @@
 package io.unequal.reuse.http;
+import io.unequal.reuse.data.Database;
 import io.unequal.reuse.util.Checker;
 
 
@@ -6,6 +7,7 @@ public class Settings {
 
 	private int _port;
 	private String _staticFiles;
+	private Database _db;
 	
 	public Settings() {
 		_port = 5000;
@@ -28,5 +30,13 @@ public class Settings {
 	
 	public String staticFiles() {
 		return _staticFiles;
+	}
+	
+	public void database(Database db) {
+		_db = db;
+	}
+	
+	public Database database() {
+		return _db;
 	}
 }

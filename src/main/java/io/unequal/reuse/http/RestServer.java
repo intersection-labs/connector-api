@@ -44,7 +44,7 @@ public class RestServer {
 		if(_server.isRunning()) {
 			throw new IllegalStateException("server is already running");
 		}
-		ServletHolder holder = new ServletHolder(new EndpointServlet(endpoint));
+		ServletHolder holder = new ServletHolder(new EndpointServlet(endpoint, _settings.database()));
 		for(String route : routes) {
 			_root.addServlet(holder, route);
 		}

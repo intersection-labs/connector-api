@@ -24,6 +24,7 @@ public class Config {
 			Checker.checkIllegalValue(type, Integer.class, Long.class, String.class);
 		}
 		String value = System.getenv(name);
+		name = name.toLowerCase();
 		if(value == null) {
 			throw new IntegrityException(x("could not find environment variable '{}'", name));
 		}
@@ -44,7 +45,7 @@ public class Config {
 		if(converted == null) {
 			throw new IntegrityException(type);
 		}
-		_values.put(name.toLowerCase(), converted);
+		_values.put(name, converted);
 		return converted;
 	}
 	

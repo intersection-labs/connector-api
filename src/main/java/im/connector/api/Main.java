@@ -1,9 +1,6 @@
 package im.connector.api;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Map;
-import com.heroku.sdk.jdbc.DatabaseUrl;
+import io.unequal.reuse.data.Database;
 import io.unequal.reuse.http.Env;
 import io.unequal.reuse.http.RestServer;
 import io.unequal.reuse.http.Settings;
@@ -18,10 +15,15 @@ public class Main {
 		config.load("PORT", Integer.class);
 		config.load("APP_URL", String.class);
 		config.load("ENV", Env.class);
+		config.load("DATABASE_URL", String.class);
+		// Load database:
+		boolean local = config.get("ENV") == Env.DEV;
+		Database db = new Database((String)config.get("DATABASE_URL"), local);
 		// Configure server:
 		Settings settings = new Settings();
 		settings.port((Integer)config.get("port"));
 		settings.staticFiles("/public");
+		settings.database(db);
 		RestServer server = new RestServer(settings);
 		server.endpoint(new ConfigCheckVersionEndpointV1(), "/config/check-version/v1");
 		server.run();
