@@ -15,9 +15,11 @@ class DatabaseUrl {
 		Checker.checkEmpty(url);
 		try {
 			URI uri = new URI(url);
+			StringBuilder params = new StringBuilder();
+			params.append("prepareThreshold=1");
 			// This disables SSL for local databases:
-			String ssl = local ? "" : "ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory";
-			_jdbcUrl = Util.x("jdbc:postgresql://{}:{}{}{}", uri.getHost(), uri.getPort(), uri.getPath(), ssl);
+			params.append(local ? "" : "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory");
+			_jdbcUrl = Util.x("jdbc:postgresql://{}:{}{}?{}", uri.getHost(), uri.getPort(), uri.getPath(), params.toString());
 			String[] parts = uri.getUserInfo().split(":");
 			_username = parts[0];
 			_password = parts[1];

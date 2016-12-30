@@ -1,4 +1,4 @@
-package im.connector.api;
+package im.connector.api.rest;
 import io.unequal.reuse.http.Endpoint;
 import io.unequal.reuse.http.Request;
 import io.unequal.reuse.http.Response;

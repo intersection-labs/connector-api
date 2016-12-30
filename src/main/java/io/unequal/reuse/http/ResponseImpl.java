@@ -7,6 +7,8 @@ import java.util.HashSet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import io.unequal.reuse.data.Connection;
+import io.unequal.reuse.data.Database;
 import io.unequal.reuse.util.Checker;
 import io.unequal.reuse.util.Strings;
 
@@ -18,13 +20,16 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	private boolean _lenient;
 	private boolean _committed;
 	private boolean _contentTypeSet;
+	private final Database _db;
+	private Connection _c;
 	
 	// TODO contentType should not be required
-	public ResponseImpl(HttpServletResponse response, String contentType) {
+	public ResponseImpl(HttpServletResponse response, String contentType, Database db) {
 		super(response);
 		_cookieNames = new HashSet<String>();
 		_contentType = contentType;
 		_lenient = _committed = _contentTypeSet = false;
+		_db = db;
 	}
 
 	public boolean hasCookie(String name, String path) {
@@ -177,6 +182,20 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 		return _getCookieFQN(c.getName(), c.getPath());
 	}
 	
+	public Connection connection() {
+		if(_c == null) {
+			_c = _db.connect();
+		}
+		return _c;
+	}
+	
+	// For EndpointServlet:
+	void close() {
+		if(_c != null) {
+			_c.close();
+		}
+	}
+
 	private String _getCookieFQN(String name, String path) {
 		if(path == null) {
 			return name;

@@ -29,7 +29,7 @@ public class RestServer {
 			protected void generateAcceptableResponse(Request base, HttpServletRequest httpReq, HttpServletResponse httpResp, int code, String message) throws IOException {
 				if(code == 404) {
 					base.setHandled(true);
-					Response resp = new ResponseImpl(httpResp, Constants.JSON);
+					Response resp = new ResponseImpl(httpResp, Constants.JSON, null);
 					resp.sendError(StatusCodes.ENDPOINT_NOT_FOUND, null, base.getServletPath());
 				}
 			}

@@ -31,6 +31,7 @@
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.2</version>
 		</dependency>
+		<!-- TODO can we removet this? -->
 		<dependency>
 			<groupId>com.heroku.sdk</groupId>
 			<artifactId>heroku-jdbc</artifactId>
@@ -79,7 +80,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
-							<mainClass>im.connector.api.Main</mainClass>
+							<mainClass>im.connector.api.rest.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

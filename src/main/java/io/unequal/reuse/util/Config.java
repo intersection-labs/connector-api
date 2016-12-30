@@ -1,16 +1,26 @@
-package im.connector.api;
+package io.unequal.reuse.util;
 import java.util.Map;
 import java.util.HashMap;
-import io.unequal.reuse.util.Checker;
-import io.unequal.reuse.util.IntegrityException;
+import java.net.URL;
+import java.net.MalformedURLException;
 import static io.unequal.reuse.util.Util.*;
 
 
 public class Config {
 
+	// TYPE:
+	private final static class SingletonHolder {
+		private final static Config instance = new Config();
+	}
+
+	public static Config get() {
+		return SingletonHolder.instance;
+	}
+
+	// INSTANCE:
 	private final Map<String,Object> _values;
 
-	public Config() {
+	private Config() {
 		_values = new HashMap<>();
 	}
 	
@@ -18,7 +28,7 @@ public class Config {
 	public Object load(String name, Class<?> type) {
 		Checker.checkEmpty(name);
 		if(_values.containsKey(name)) {
-			throw new IllegalArgumentException(x("configuration property named '{}' has already been loaded"));
+			throw new IllegalArgumentException(x("configuration property named '{}' has already been loaded", name));
 		}
 		if(!type.isEnum()) {
 			Checker.checkIllegalValue(type, Integer.class, Long.class, String.class);
@@ -38,6 +48,14 @@ public class Config {
 		}
 		if(type == Long.class) {
 			converted = new Long(value);
+		}
+		if(type == URL.class) {
+			try {
+				converted = new URL(value);
+			}
+			catch(MalformedURLException mue) {
+				throw new IntegrityException(mue);
+			}
 		}
 		if(type.isEnum()) {
 			converted = Enum.valueOf((Class<? extends Enum>)type, value);

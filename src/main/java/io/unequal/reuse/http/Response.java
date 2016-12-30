@@ -1,6 +1,7 @@
 package io.unequal.reuse.http;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
+import io.unequal.reuse.data.Connection;
 
 
 public interface Response extends HttpServletResponse {
@@ -17,4 +18,5 @@ public interface Response extends HttpServletResponse {
 	public void sendError(StatusCode status) throws IOException;
 	public void sendError(EndpointException e) throws IOException;
 	public void setLenient(boolean lenient);
+	public Connection connection();
 }

@@ -62,24 +62,23 @@ class EndpointServlet extends HttpServlet {
 
 	private void _handle(HttpMethod method, HttpServletRequest httpReq, HttpServletResponse httpResp) throws IOException {
 		httpReq.setCharacterEncoding(Constants.CHARSET);
-		Request req = new RequestImpl(httpReq);
-		Response resp = new ResponseImpl(httpResp, Constants.JSON);
-		Context ctx = new Context(_db);
+		RequestImpl req = new RequestImpl(httpReq);
+		ResponseImpl resp = new ResponseImpl(httpResp, Constants.JSON, _db);
 		try {
 			if(method == HttpMethod.GET) {
-				_e.get(req, ctx, resp);
+				_e.get(req, resp);
 			}
 			else if(method == HttpMethod.POST) {
-				_e.post(req, ctx, resp);
+				_e.post(req, resp);
 			}
 			else if(method == HttpMethod.DELETE) {
-				_e.delete(req, ctx, resp);
+				_e.delete(req, resp);
 			}
 			else if(method == HttpMethod.PUT) {
-				_e.put(req, ctx, resp);
+				_e.put(req, resp);
 			}
 			else if(method == HttpMethod.TRACE) {
-				_e.trace(req, ctx, resp);
+				throw new MethodNotAllowedException(HttpMethod.TRACE);
 			}
 			else {
 				throw new IntegrityException(method);
@@ -91,6 +90,9 @@ class EndpointServlet extends HttpServlet {
 		catch(Exception e) {
 			// TODO impl
 			throw new RuntimeException(e);
+		}
+		finally {
+			resp.close();
 		}
 	}
 

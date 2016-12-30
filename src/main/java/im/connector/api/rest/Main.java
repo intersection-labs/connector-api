@@ -1,9 +1,10 @@
-package im.connector.api;
-import java.sql.*;
+package im.connector.api.rest;
+import java.net.URL;
 import io.unequal.reuse.data.Database;
 import io.unequal.reuse.http.Env;
 import io.unequal.reuse.http.RestServer;
 import io.unequal.reuse.http.Settings;
+import io.unequal.reuse.util.Config;
 
 
 
@@ -11,17 +12,13 @@ public class Main {
 	
 	public static void main(String[] args) throws Exception {
 		// Load config:
-		Config config = new Config();
-		config.load("PORT", Integer.class);
-		config.load("APP_URL", String.class);
-		config.load("ENV", Env.class);
-		config.load("DATABASE_URL", String.class);
+		App.loadConfig();
 		// Load database:
-		boolean local = config.get("ENV") == Env.DEV;
-		Database db = new Database((String)config.get("DATABASE_URL"), local);
+		boolean local = App.env() == Env.DEV;
+		Database db = new Database(App.databaseUrl(), local);
 		// Configure server:
 		Settings settings = new Settings();
-		settings.port((Integer)config.get("port"));
+		settings.port(App.port());
 		settings.staticFiles("/public");
 		settings.database(db);
 		RestServer server = new RestServer(settings);
