@@ -4,13 +4,22 @@ import io.unequal.reuse.util.Arrays;
 
 class UniqueConstraint {
 
+	private final Query<?> _query;
 	private final Property<?>[] _props;
 
-	public UniqueConstraint(Property<?> ... props) {
+	public UniqueConstraint(Query<?> query, Property<?> ... props) {
 		// Precondition checks are done on Entity.
+		_query = query;
 		_props = props;
+		for(Property<?> prop : props) {
+			_query.where(prop.isEqualTo());
+		}
 	}
-	
+
+	public Query<?> query() {
+		return _query;
+	}
+
 	public String toString() {
 		return Arrays.toString(_props);
 	}
@@ -40,10 +49,10 @@ class UniqueConstraint {
 		return _props;
 	}
 
-	public QueryArg[] toArgs(Instance<?> i) {
-		QueryArg[] args = new QueryArg[_props.length];
+	public Predicate[] toArgs(Instance<?> i) {
+		Predicate[] args = new Predicate[_props.length];
 		for(int j=0; j<_props.length; j++) {
-			args[j] = new QueryArg(_props[j], i.getValue(_props[j]), QueryArg.Operator.EQUAL);
+			args[j] = new Predicate(_props[j], Predicate.Operator.EQUAL, i.getValue(_props[j]));
 		}
 		return args;
 	}

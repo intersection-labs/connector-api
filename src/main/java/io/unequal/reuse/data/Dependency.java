@@ -24,7 +24,7 @@ public class Dependency {
 		return "Dependency: "+_foreignKey.getFullName();
 	}
 	
-	public QueryResult<Instance<?>> findInstancesRelatedTo(Instance<?> i) {
-		return _entity.findWhere(new QueryArg(_foreignKey, i, QueryArg.Operator.EQUAL));
-	}
+	//public QueryResult<Instance<?>> findInstancesRelatedTo(Instance<?> i) {
+	//	return _entity.findWhere(new Predicate(_foreignKey, Predicate.Operator.EQUAL, i));
+	//}
 }

@@ -151,7 +151,7 @@ public class Checker {
 		checkNull(array1);
 		checkNull(array2);
 		if(array1.length != array2.length) {
-			throw new IllegalArgumentException(Strings.expand("array 1 has {} elements, array 2 has {}", array1.length, array2.length));
+			throw new IllegalArgumentException(Strings.expand("expected {} elements, found {}", array1.length, array2.length));
 		}
 		else {
 			return array1;

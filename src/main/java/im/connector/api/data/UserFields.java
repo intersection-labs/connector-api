@@ -36,48 +36,48 @@ public class UserFields extends ActiveEntity<UserField> {
 
 	private UserFields() {
 		super("user_fields");
-		user = addProperty(User.class, "user", Property.OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		type = addProperty(FieldType.class, "type", Constraint.MANDATORY, Constraint.READ_ONLY);
-		value = addProperty(String.class, "value", Constraint.MANDATORY, Constraint.UNIQUE);
-		label = addProperty(String.class, "label");
-		validated = addProperty(Boolean.class, "validated", Boolean.FALSE, Constraint.MANDATORY);
+		user = addProperty(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
+		type = addProperty(FieldType.class, "type", "type", Constraint.MANDATORY, Constraint.READ_ONLY);
+		value = addProperty(String.class, "value", "value", Constraint.MANDATORY, Constraint.UNIQUE);
+		label = addProperty(String.class, "label", "label");
+		validated = addProperty(Boolean.class, "validated", "validated", Boolean.FALSE, Constraint.MANDATORY);
 	}
 
 	public Property<?>[] getNaturalKeyProperties() {
 		return new Property<?>[] { user, value };
 	}
 	
-	public UserField email(String email, boolean validated, Connection c) {
+	public UserField email(String email, boolean val, Connection c) {
 		Checker.checkEmpty(email);
 		Checker.checkNull(c);
 		if(_email == null) {
 			_email = query()
-				.where(value)
-				.where(validated)
+				.where(value.isEqualTo())
+				.where(validated.isEqualTo())
 				.where(type.isEqualTo(FieldType.EMAIL))
 				.where(active.isEqualTo(true));
 		}
-		return c.run(_email, email, validated).single();
+		return c.run(_email, email, val).single();
 	}
 
-	public QueryResult<UserField> phoneNumber(String number, boolean validated, Connection c) {
+	public QueryResult<UserField> phoneNumber(String number, boolean val, Connection c) {
 		Checker.checkEmpty(number);
 		Checker.checkNull(c);
 		if(_phoneNumber == null) {
 			_phoneNumber = query()
-				.where(value)
-				.where(validated)
+				.where(value.isEqualTo())
+				.where(validated.isEqualTo())
 				.where(type.isEqualTo(FieldType.PHONE))
 				.where(active.isEqualTo(true));
 		}
-		return c.run(_phoneNumber, number, validated);
+		return c.run(_phoneNumber, number, val);
 	}
 	
 	public QueryResult<UserField> listFor(User u, Connection c) {
 		Checker.checkNull(u);
 		Checker.checkNull(c);
 		if(_listFor == null) {
-			_listFor = query().where(user).where(active.isEqualTo(true));
+			_listFor = query().where(user.isEqualTo()).where(active.isEqualTo(true));
 		}
 		return c.run(_listFor, u);
 	}

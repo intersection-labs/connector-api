@@ -1,5 +1,6 @@
 package io.unequal.reuse.data;
 import io.unequal.reuse.util.Arrays;
+import io.unequal.reuse.util.Checker;
 import io.unequal.reuse.util.IntegrityException;
 import static io.unequal.reuse.util.Util.*;
 
@@ -13,6 +14,7 @@ public class Property<T> {
 	private final Entity<?> _parent;
 	private final Class<T> _type;
 	private final String _name;
+	private final String _columnName;
 	private final ValueGenerator<T> _default;
 	private final boolean _mandatory;
 	private final boolean _readOnly;
@@ -23,11 +25,12 @@ public class Property<T> {
 	private Entity<?> _related;
 
 	// For Entity:
-	Property(Entity<?> parent, Class<T> cl, String name, ValueGenerator<T> def, OnDelete onDelete, Constraint ... constraints) {
+	Property(Entity<?> parent, Class<T> cl, String name, String columnName, ValueGenerator<T> def, OnDelete onDelete, Constraint ... constraints) {
 		// Note: null and empty checks are carried out on Entity.addProperty 
 		_parent = parent;
 		_type = cl;
 		_name = name;
+		_columnName = columnName;
 		_default = def;
 		_mandatory = Arrays.contains(Constraint.MANDATORY, constraints);
 		_readOnly = Arrays.contains(Constraint.READ_ONLY, constraints);
@@ -63,6 +66,10 @@ public class Property<T> {
 
 	public String getName() {
 		return _name;
+	}
+
+	public String getColumnName() {
+		return _columnName;
 	}
 	
 	public String getFullName() {
@@ -101,16 +108,36 @@ public class Property<T> {
 		return _onDelete;
 	}
 	
-	public QueryArg isEqualTo(T value) {
-		return new QueryArg(this, value, QueryArg.Operator.EQUAL);
-	}
-	
-	public QueryArg isNotEqualTo(T value) {
-		return new QueryArg(this, value, QueryArg.Operator.NOT_EQUAL);
+	public Predicate isEqualTo(T value) {
+		if(value == null) {
+			_checkMandatory();
+		}
+		return new Predicate(this, Predicate.Operator.EQUAL, value==null ? Predicate.NULL : value);
 	}
 
-	public QueryArg isSmallerThan(T value) {
-		return new QueryArg(this, value, QueryArg.Operator.LESS_THAN);
+	public Predicate isEqualTo() {
+		return new Predicate(this, Predicate.Operator.EQUAL, null);
+	}
+
+	public Predicate isNotEqualTo(T value) {
+		if(value == null) {
+			_checkMandatory();
+		}
+		return new Predicate(this, Predicate.Operator.NOT_EQUAL, value);
+	}
+
+	public Predicate isNotEqualTo() {
+		return new Predicate(this, Predicate.Operator.NOT_EQUAL, null);
+	}
+
+	public Predicate isGreaterThan(T value) {
+		Checker.checkNull(value);
+		return new Predicate(this, Predicate.Operator.GREATER_THAN, value);
+	}
+
+	public Predicate isLessThan(T value) {
+		Checker.checkNull(value);
+		return new Predicate(this, Predicate.Operator.LESS_THAN, value);
 	}
 
 	public String toString() {
@@ -124,11 +151,15 @@ public class Property<T> {
 		}
 		_related = related;
 	}
-
-	// For Self and Instance:
+	
+	// For Connection:
 	Object toPrimitive(Object value) {
 		if(value == null) {
+			_checkMandatory();
 			return null;
+		}
+		if(value.getClass() != _type) {
+			throw new IllegalArgumentException(x("expected {} parameter, found {}", _type.getSimpleName(), value.getClass().getSimpleName()));
 		}
 		// Convert enum to String:
 		if(_type.isEnum()) {
@@ -154,6 +185,12 @@ public class Property<T> {
 		return value;
 	}
 	
+	private void _checkMandatory() {
+		if(isMandatory()) {
+			throw new IllegalArgumentException(x("property '{}' cannot be NULL", getName()));
+		}
+	}
+
 	// For Instance:
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	T toObject(Object value, Connection c) {
@@ -171,7 +208,7 @@ public class Property<T> {
 		// Convert foreign key to Instance:
 		if(_foreignKey) {
 			// TODO use the Connection object here:
-			return (T)_related.find((Long)value);
+			return (T)_related.find((Long)value, c);
 		}
 		// Deal with empty strings:
 		if("".equals(value)) {

@@ -24,7 +24,6 @@ import im.connector.api.rest.App;
 
 public class Accounts extends Entity<Account> {
 
-
 	// TYPE:
 	private final static class SingletonHolder {
 		private final static Accounts instance = new Accounts();
@@ -56,19 +55,20 @@ public class Accounts extends Entity<Account> {
 	
 	public Accounts() {
 		super("accounts");
-		type = addProperty(Type.class, "type", Constraint.MANDATORY, Constraint.READ_ONLY);
-		user = addProperty(User.class, "user", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		email = addProperty(UserField.class, "email", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);
-		refreshToken = addProperty(String.class, "refreshToken");
-		accessToken = addProperty(String.class, "accessToken");
-		accessTokenDate = addProperty(Date.class, "accessTokenDate");
-		lastSyncDate = addProperty(Date.class, "lastSyncDate");
+		type = addProperty(Type.class, "type", "type", Constraint.MANDATORY, Constraint.READ_ONLY);
+		user = addProperty(User.class, "user", "user_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
+		email = addProperty(UserField.class, "email", "email_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);
+		refreshToken = addProperty(String.class, "refreshToken", "refresh_token");
+		accessToken = addProperty(String.class, "accessToken", "access_token");
+		accessTokenDate = addProperty(Date.class, "accessTokenDate", "access_token_date");
+		lastSyncDate = addProperty(Date.class, "lastSyncDate", "last_sync_date");
 	}
 
 	public Property<?>[] getNaturalKeyProperties() { return new Property<?>[] { user, email }; }
 	
-	public String getAuthorizedAccessTokenFrom(Account account) throws IOException {
+	public String getAuthorizedAccessTokenFrom(Account account, Connection c) throws IOException {
 		Checker.checkNull(account);
+		Checker.checkNull(c);
 		String accessToken = account.getAccessToken();
 		if(accessToken == null) {
 			// TODO handle this situation appropriately. This happens when the user has no access configured
@@ -100,15 +100,16 @@ public class Accounts extends Entity<Account> {
 			account.setAccessToken(accessToken);
 			account.setAccessTokenDate(new Date());
 			account.setAccessToken(accessToken);
-			update(account);
+			update(account, c);
 		}
 		return account.getAccessToken();
 	}
 	
 	public QueryResult<Account> listFor(User u, Connection c) {
+		Checker.checkNull(c);
 		if(_listFor == null) {
-			_listFor = query().where(user);
+			_listFor = query().where(user.isEqualTo());
 		}
-		c.run(_listFor, u);
+		return c.run(_listFor, u);
 	}
 }

@@ -52,13 +52,13 @@ public class Contacts extends ActiveEntity<Contact> {
 
 	private Contacts() {
 		super("contacts");
-		owner = addProperty(User.class, "owner", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		me = addProperty(Boolean.class, "me", Boolean.FALSE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		firstName = addProperty(String.class, "firstName");
-		lastName = addProperty(String.class, "lastName");
-		organization = addProperty(String.class, "organization");
-		connection = addProperty(User.class, "connection", OnDelete.SET_NULL);
-		status = addProperty(Status.class, "status", Status.NOT_CONNECTED, Constraint.MANDATORY);
+		owner = addProperty(User.class, "owner", "owner_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
+		me = addProperty(Boolean.class, "me", "me", Boolean.FALSE, Constraint.MANDATORY, Constraint.READ_ONLY);
+		firstName = addProperty(String.class, "firstName", "first_name");
+		lastName = addProperty(String.class, "lastName", "last_name");
+		organization = addProperty(String.class, "organization", "organization");
+		connection = addProperty(User.class, "connection", "connection_id", OnDelete.SET_NULL);
+		status = addProperty(Status.class, "status", "status", Status.NOT_CONNECTED, Constraint.MANDATORY);
 	}
 
 	public Property<?>[] getNaturalKeyProperties() { return new Property<?>[0]; }
@@ -70,7 +70,7 @@ public class Contacts extends ActiveEntity<Contact> {
 		Checker.checkNull(c);
 		if(_listFor == null) {
 			_listFor = query()
-				.where(owner)
+				.where(owner.isEqualTo())
 				.where(active.isEqualTo(true))
 				.orderByAsc(firstName)
 				.orderByAsc(lastName)

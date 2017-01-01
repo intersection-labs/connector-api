@@ -1,7 +1,8 @@
 package io.unequal.reuse.data;
+import java.sql.ResultSet;
+import java.util.List;
 import java.util.AbstractList;
 import java.util.Iterator;
-import java.util.List;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Entity;
@@ -18,6 +19,11 @@ public class QueryResult<I extends Instance<?>> {
 	private QueryResultList<Entity> _list;
 	private boolean _positionRetrieved;
 
+	// For Connection:
+	QueryResult(Class<I> type, ResultSet rs) {
+		
+	}
+	
 	// For Query:
 	QueryResult(Class<I> type, PreparedQuery pq, FetchOptions options, boolean savePosition) {
 		_type = type;
@@ -43,7 +49,7 @@ public class QueryResult<I extends Instance<?>> {
 		return new _InstanceList(_pq.asList(_options));
 	}
 	
-	public I getSingle() {
+	public I single() {
 		Entity e = _pq.asSingleEntity();
 		if(e == null) {
 			return null;

@@ -147,16 +147,21 @@ public abstract class Instance<E extends Entity<?>> {
 	public boolean hasUpdates() {
 		return _updates.size() > 0;
 	}
-	
+
 	public boolean persisted() {
 		return _persisted;
 	}
-	
-	public QueryArg[] getNaturalKeyAsArg() {
+
+	// For Entity:
+	void updateTimestamp() {
+		_updates.put(getEntity().timeUpdated, new Date());
+	}
+
+	public Predicate[] getNaturalKeyAsArg() {
 		Property<?>[] props = getEntity().getNaturalKeyProperties();
-		QueryArg[] arg = new QueryArg[props.length];
+		Predicate[] arg = new Predicate[props.length];
 		for(int i=0; i<props.length; i++) {
-			arg[i] = new QueryArg(props[i], getValue(props[i]), QueryArg.Operator.EQUAL);
+			arg[i] = new Predicate(props[i], Predicate.Operator.EQUAL, getValue(props[i]));
 		}
 		return arg;
 	}
@@ -175,6 +180,17 @@ public abstract class Instance<E extends Entity<?>> {
 		_persisted = true;
 	}
 
+	// For ???
+	public Object[] args(Query<?> query) {
+		Checker.checkNull(query);
+		Property<?>[] params = query.params();
+		Object[] args = new Object[params.length];
+		for(int i=0; i<args.length; i++) {
+			args[i] = getValue(params[i]);
+		}
+		return args;
+	}
+	
 	// For Entity:
 	Set<Map.Entry<Property<?>,Object>> getUpdates() {
 		return new HashMap<>(_updates).entrySet();
@@ -194,31 +210,22 @@ public abstract class Instance<E extends Entity<?>> {
 			_removeIfNotUpdated(prop, _updates.get(prop));
 		}
 	}
-	
-	// For Entity:
-	void flush(Property<?> prop, Object value) {
-		_values.put(prop, prop.toPrimitive(value));
-		// It's now safe to clear this update:
-		_updates.remove(prop);
-	}
 
 	// For Entity:
 	boolean isUpdated(Property<?> prop) {
 		return _updates.containsKey(prop);
 	}
 
-	// For Self and Entity:
-	/*
-	void setGoogleEntity(com.google.appengine.api.datastore.Entity e) {
+	// For Entity:
+	void flush() {
+		_values.putAll(_updates);
 		_updates.clear();
-		_data = e;
 	}
-	*/
 	
 	private void _checkProperty(Property<?> prop) {
 		// Check if setting a property that pertains to this entity:
 		if(!getEntity().getProperties().containsValue(prop)) {
-			throw new IllegalArgumentException(x("property {} cannot be used in entity {}", prop.getFullName(), getEntity().getName()));
+			throw new IllegalArgumentException(x("property '{}' cannot be used in entity '{}'", prop.getFullName(), getEntity().getName()));
 		}
 	}
 

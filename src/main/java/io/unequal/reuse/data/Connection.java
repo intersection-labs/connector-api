@@ -1,15 +1,14 @@
 package io.unequal.reuse.data;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 import io.unequal.reuse.util.Checker;
-import io.unequal.reuse.util.Util;
 import io.unequal.reuse.util.IntegrityException;
-import static io.unequal.reuse.util.Util.info;
+import static io.unequal.reuse.util.Util.*;
+
+
 
 public class Connection implements AutoCloseable {
 
@@ -44,7 +43,7 @@ public class Connection implements AutoCloseable {
 			for(int i=0; i<params.length; i++) {
 				ps.setObject(i+1, params[i]);
 			}
-			_logger.info(Util.x("Executing query: {}", ps));
+			_logger.info(x("Executing query: {}", ps));
 			ps.executeUpdate();
 			ResultSet rs = ps.getGeneratedKeys();
 			rs.next();
@@ -58,16 +57,50 @@ public class Connection implements AutoCloseable {
 		}
 	}
 
-	public void update(Instance<?> i) {
-		// TODO impl
+	public void update(String sql) {
+		try {
+			_logger.info(x("Executing query: {}", sql));
+			Statement stmt = _c.createStatement();
+			int count = stmt.executeUpdate(sql);
+			stmt.close();
+			if(count != 1) {
+				throw new IntegrityException(count);
+			}
+		}
+		catch(SQLException sqle) {
+			throw new DatabaseException(sqle);
+		}
 	}
 
-	public <T extends Instance<?>> T find(Entity<T> e, Long id) {
-		return null;
-	}
-
-	public <T extends Instance<?>> QueryResult<T> run(Query<T> query, Object ... params) {
-		// TODO impl
-		return null;
+	public <T extends Instance<?>> QueryResult<T> run(Query<T> query, Object ... args) {
+		try {
+			PreparedStatement ps = _c.prepareStatement(query.sql());
+			Property<?>[] params = query.params();
+			int length = params.length;
+			if(query.limit() == null) {
+				length++;
+			}
+			if(query.offset() == null) {
+				length++;
+			}
+			if(length != args.length) {
+				throw new IllegalArgumentException(x("expected {} arguments, found {}", length, args.length));
+			}
+			int i=0;
+			for(; i<params.length; i++) {
+				ps.setObject(i+1, params[i].toPrimitive(args[i]));
+			}
+			if(query.limit() == null) {
+				ps.setInt(i++, query.limit());
+			}
+			if(query.offset() == null) {
+				ps.setInt(i++, query.offset());
+			}
+			_logger.info(x("Executing query: {}", ps));
+			return new QueryResult<T>(query.type(), ps.executeQuery());
+		}
+		catch(SQLException sqle) {
+			throw new DatabaseException(sqle);
+		}
 	}
 }

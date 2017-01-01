@@ -41,10 +41,11 @@ public class Users extends Entity<User> {
 	public final Property<Status> status;
 	
 	private Users() {
-		firstName = addProperty(String.class, "firstName", Constraint.MANDATORY);
-		lastName = addProperty(String.class, "lastName");
-		organization = addProperty(String.class, "organization");
-		status = addProperty(Status.class, "status", Constraint.MANDATORY);
+		super("users");
+		firstName = addProperty(String.class, "firstName", "first_name", Constraint.MANDATORY);
+		lastName = addProperty(String.class, "lastName", "last_name");
+		organization = addProperty(String.class, "organization", "organization");
+		status = addProperty(Status.class, "status", "status", Constraint.MANDATORY);
 	}
 
 	public Property<?>[] getNaturalKeyProperties() { return new Property<?>[0]; }

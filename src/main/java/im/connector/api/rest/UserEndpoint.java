@@ -8,7 +8,6 @@ import io.unequal.reuse.http.Request.HttpMethod;
 import io.unequal.reuse.http.MethodNotAllowedException;
 import io.unequal.reuse.http.Request;
 import io.unequal.reuse.http.Response;
-import io.unequal.reuse.http.Processor;
 import io.unequal.reuse.data.Connection;
 import im.connector.api.data.Session;
 import im.connector.api.data.Sessions;
@@ -55,7 +54,7 @@ public abstract class UserEndpoint extends Endpoint {
 		// Update cookie:
 		Sessions.get().refreshCookie(req, resp, session);
 		// Update timestamp:
-		c.update(session.accessed());
+		Sessions.get().update(session.accessed(), c);
 		return session;
 	}
 }

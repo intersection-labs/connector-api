@@ -1,153 +1,147 @@
 package io.unequal.reuse.data;
 import java.util.List;
 import java.util.ArrayList;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Cursor;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Query.CompositeFilter;
-import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
-import com.google.appengine.api.datastore.Query.Filter;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import io.unequal.reuse.data.QueryArg.Operator;
+import java.util.Iterator;
 import io.unequal.reuse.util.Checker;
+import io.unequal.reuse.util.IllegalUsageException;
 import static io.unequal.reuse.util.Util.*;
 
 
 public class Query<I extends Instance<?>> {
 
+	// TYPE:
+	public static enum Direction { ASC, DESC }
+
+	// INSTANCE:
 	private final Entity<I> _entity;
-	private final List<QueryArg> _args;
-	private final com.google.appengine.api.datastore.Query _query;
-	private int _limit;
-	private boolean _savePosition;
-	private String _position;
-	private int _fetchSize;
-	private QueryArg _inequality;
+	private final List<Predicate> _predicates;
+	private final List<Property<?>> _params;
+	private final List<_Sort> _sort;
+	private Integer _limit;
+	private Integer _offset;
+	private String _sql;
 
 	public Query(Entity<I> entity) {
 		Checker.checkNull(entity);
 		_entity = entity;
-		_args = new ArrayList<>();
-		_query = new com.google.appengine.api.datastore.Query(_entity.getName());
+		_predicates = new ArrayList<>();
+		_params = new ArrayList<>();
+		_sort = new ArrayList<>();
 		_limit = -1;
-		_savePosition = false;
-		_position = null;
-		_fetchSize = 100;
-		_inequality = null;
+		_offset = -1;
+		_sql = null;
 	}
 	
-	public String toString() {
-		return _query.toString();
-	}
-
-	public Query<I> addWhere(QueryArg ... args) {
-		Checker.checkNullElements(args);
-		for(QueryArg arg : args) {
-			if(arg.getProperty().getEntity() != _entity) {
-				throw new IllegalArgumentException(x("property '{}' cannot be used to query entity '{}'", arg.getProperty().getFullName(), _entity.getName()));
+	public Query<I> where(Predicate ... where) {
+		_checkLocked();
+		for(Predicate p : where) {
+			// TODO check for repeated
+			if(p.getProperty().getEntity() != _entity) {
+				throw new IllegalArgumentException(x("property '{}' cannot be used to query entity '{}'", p.getProperty().getFullName(), _entity.getName()));
 			}
-			if(arg.getProperty() == _entity.id) {
+			if(p.getProperty() == _entity.id) {
 				throw new IllegalArgumentException("cannot use 'id' property in multiple result query. Use findSingle instead.");
 			}
-			// All inequality filters must apply to the same property:
-			if(arg.getOperator() != Operator.EQUAL) {
-				if(_inequality == null) {
-					_inequality = arg;
-				}
-				else {
-					if(!arg.getProperty().equals(_inequality.getProperty())) {
-						throw new IllegalArgumentException(x("query already has an inequality filter for property '{}'", _inequality.getProperty().getName()));
-					}
-				}
+			_predicates.add(p);
+			if(p.isParameter()) {
+				_params.add(p.getProperty());
 			}
-			_args.add(arg);
 		}
-		return this;
-	}
-	
-	public Query<I> addSortByAsc(Property<?> p) {
-		return _addSortBy(p, SortDirection.ASCENDING);
-	}
-
-	public Query<I> addSortByDesc(Property<?> p) {
-		return _addSortBy(p, SortDirection.DESCENDING);
-	}
-	
-	public Query<I> setLimit(int limit) {
-		Checker.checkMinValue(limit, 1);
-		_limit = limit;
-		setFetchSize(limit);
-		return this;
-	}
-	
-	public Query<I> setSavePosition(boolean value) {
-		_savePosition = value;
-		return this;
-	}
-	
-	public Query<I> setPosition(String position) {
-		Checker.checkEmpty(position);
-		_position = position;
 		return this;
 	}
 
-	public int getFetchSize() {
-		return _fetchSize;
+	public Query<I> orderByAsc(Property<?> p) {
+		return _orderBy(p, Direction.ASC);
 	}
-	
-	public Query<I> setFetchSize(int fetchSize) {
-		Checker.checkMinValue(fetchSize, 1);
-		_fetchSize = fetchSize;
-		return this;
+
+	public Query<I> orderByDesc(Property<?> p) {
+		return _orderBy(p, Direction.DESC);
 	}
-	
-	public QueryResult<I> run() {
-		// Prepare query:
-		if(_args.size() > 0) {
-			List<Filter> filters = new ArrayList<>(_args.size());
-			for(QueryArg arg : _args) {
-				filters.add(arg.toFilter());
-			}
-			Filter f = filters.size() > 1 ? new CompositeFilter(CompositeFilterOperator.AND, filters) : filters.get(0);
-			_query.setFilter(f);
-		}
-		PreparedQuery pq = _entity.getDatastoreService().prepare(_query);
-		// Prepare fetch options:
-		FetchOptions options = FetchOptions.Builder.withChunkSize(_fetchSize);
-		if(_limit != -1) {
-			options.limit(_limit);
-		}
-		if(_position != null) {
-			options.startCursor(Cursor.fromWebSafeString(_position));
-		}
-		// Return wrapper:
-		_entity.getLogger().log(info("running query: {}", this));
-		return new QueryResult<I>(_entity.getInstanceClass(), pq, options, _savePosition);
-	}
-	
-	private Query<I> _addSortBy(Property<?> p, SortDirection direction) {
+
+	private Query<I> _orderBy(Property<?> p, Direction direction) {
 		Checker.checkNull(p);
 		if(p.getEntity() != _entity) {
 			throw new IllegalArgumentException(x("property {} cannot be used to sort entity {}", p.getFullName(), _entity.getName()));
 		}
-		if(!p.isIndexed()) {
-			throw new IllegalArgumentException(x("{}: cannot sort on non-indexed properties", p.getName()));
-		}
-		// Properties used in inequality filters must be sorted first:
-		if(_query.getSortPredicates().isEmpty()) {
-			if(_inequality != null && !p.equals(_inequality.getProperty())) {
-				throw new IllegalArgumentException(x("{}: sorting on '{}' is required first, because it has an inequality filter", p.getName(), _inequality.getProperty().getName()));
-			}
-		}
-
-		// Sort orders are ignored on properties with equality filters:
-		for(QueryArg arg : _args) {
-			if(arg.getProperty().equals(p) && arg.getOperator() == Operator.EQUAL) {
-				throw new IllegalArgumentException(x("{}: cannot sort on properties with equality filters", p.getName()));
-			}
-		}
-
-		_query.addSort(p.getName(), direction);
+		_sort.add(new _Sort(p, direction));
 		return this;
+	}
+
+	public Query<I> limit(Integer limit) {
+		if(limit == null) {
+			_limit = null;
+		}
+		else {
+			Checker.checkMinValue(limit, 1);
+			_limit = limit;
+		}
+		return this;
+	}
+
+	public Integer limit() {
+		return _limit;
+	}
+
+	public Query<I> offset(Integer offset) {
+		if(offset == null) {
+			_offset = null;
+		}
+		else {
+			Checker.checkMinValue(offset, 1);
+			_offset = offset;
+		}
+		return this;
+	}
+	
+	public Integer offset() {
+		return _offset;
+	}
+
+	// TODO return an immutable list instead
+	public Property<?>[] params() {
+		return _params.toArray(new Property<?>[0]);
+	}
+
+	public String sql() {
+		if(_sql == null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("SELECT * FROM ").append(_entity.getTableName()).append(" WHERE ");
+			Iterator<Predicate> itArgs = _predicates.iterator();
+			while(itArgs.hasNext()) {
+				sb.append(itArgs.next().sql());
+				if(itArgs.hasNext()) {
+					sb.append(" AND ");
+				}
+			}
+			// TODO order by
+			// TODO limit and offset
+			_sql = sb.toString();
+		}
+		return _sql;
+	}
+	
+	public String toString() {
+		return sql();
+	}
+
+	
+	// For Connection:
+	Class<I> type() {
+		return _entity.getInstanceClass();
+	}
+
+	private void _checkLocked() {
+		if(_sql != null) {
+			throw new IllegalUsageException("query cannot be modified after being used");
+		}
+	}
+
+	private class _Sort {
+		public final Property<?> property;
+		public final Direction direction;
+		public _Sort(Property<?> p, Direction d) {
+			property = p;
+			direction = d;
+		}
 	}
 }

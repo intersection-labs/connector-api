@@ -17,6 +17,8 @@ import io.unequal.reuse.util.IllegalUsageException;
 import io.unequal.reuse.util.ImmutableList;
 import io.unequal.reuse.util.ImmutableMap;
 import io.unequal.reuse.util.IntegrityException;
+import io.unequal.reuse.util.Strings;
+
 import static io.unequal.reuse.util.Util.*;
 
 
@@ -37,6 +39,8 @@ public abstract class Entity<I extends Instance<?>> {
 	private Database _db;
 	// Data management:
 	private String _insertSql;
+	private Query<I> _findById;
+	
 
 	@SuppressWarnings("unchecked")
 	protected Entity(String tableName) {
@@ -52,11 +56,12 @@ public abstract class Entity<I extends Instance<?>> {
 		// TODO remove
 		_naturalKeyAdded = false;
 		// Common properties:
-		id = addProperty(Long.class, "id", Constraint.MANDATORY, Constraint.AUTO_GENERATED);
-		timeCreated = addProperty(Date.class, "timeCreated", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);
-		timeUpdated = addProperty(Date.class, "timeUpdated", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);		
+		id = addProperty(Long.class, "id", "id", Constraint.MANDATORY, Constraint.AUTO_GENERATED, Constraint.READ_ONLY);
+		timeCreated = addProperty(Date.class, "timeCreated", "time_created", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);
+		timeUpdated = addProperty(Date.class, "timeUpdated", "time_created", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);		
 		// Data management:
 		_insertSql = null;
+		_findById = null;
 	}
 
 	protected Logger getLogger() {
@@ -90,30 +95,31 @@ public abstract class Entity<I extends Instance<?>> {
 		return new ImmutableList<Dependency>(_dependencies);
 	}
 	
-	protected <T> Property<T> addProperty(Class<T> c, String name, Constraint ... constraints) {
-		return _addProperty(c, name, (Generators.Direct<T>)null, null, constraints);
+	protected <T> Property<T> addProperty(Class<T> c, String name, String columnName, Constraint ... constraints) {
+		return _addProperty(c, name, columnName, (Generators.Direct<T>)null, null, constraints);
 	}
 
-	protected <T> Property<T> addProperty(Class<T> c, String name, T def, Constraint ... constraints) {
-		return _addProperty(c, name, new Generators.Direct<T>(def), null, constraints);
+	protected <T> Property<T> addProperty(Class<T> c, String name, String columnName, T def, Constraint ... constraints) {
+		return _addProperty(c, name, columnName, new Generators.Direct<T>(def), null, constraints);
 	}
 
-	protected <T> Property<T> addProperty(Class<T> c, String name, ValueGenerator<T> def, Constraint ... constraints) {
-		return _addProperty(c, name, def, null, constraints);
+	protected <T> Property<T> addProperty(Class<T> c, String name, String columnName, ValueGenerator<T> def, Constraint ... constraints) {
+		return _addProperty(c, name, columnName, def, null, constraints);
 	}
 
-	protected <T> Property<T> addProperty(Class<T> c, String name, Property.OnDelete onDelete, Constraint ...constraints) {
-		return _addProperty(c, name, null, onDelete, constraints);
+	protected <T> Property<T> addProperty(Class<T> c, String name, String columnName, Property.OnDelete onDelete, Constraint ...constraints) {
+		return _addProperty(c, name, columnName, null, onDelete, constraints);
 	}
 	
-	private <T> Property<T> _addProperty(Class<T> c, String name, ValueGenerator<T> def, Property.OnDelete onDelete, Constraint ... constraints) {
+	private <T> Property<T> _addProperty(Class<T> c, String name, String columnName, ValueGenerator<T> def, Property.OnDelete onDelete, Constraint ... constraints) {
 		Checker.checkNull(c);
 		Checker.checkEmpty(name);
+		Checker.checkEmpty(columnName);
 		Checker.checkNullElements(constraints);
 		if(_propertyMap.containsKey(name)) {
 			throw new IllegalArgumentException("property named '"+name+"' already exists");
 		}
-		Property<T> prop = new Property<T>(this, c, name, def, onDelete, constraints);
+		Property<T> prop = new Property<T>(this, c, name, columnName, def, onDelete, constraints);
 		_propertyMap.put(name, prop);
 		_propertyList.add(prop);
 		if(prop.isUnique() && !prop.getName().equals("id")) {
@@ -138,7 +144,7 @@ public abstract class Entity<I extends Instance<?>> {
 	}
 
 	private void _unique(Property<?> ... props) {
-		UniqueConstraint uc = new UniqueConstraint(props);
+		UniqueConstraint uc = new UniqueConstraint(query(), props);
 		if(_uConstraints.contains(uc)) {
 			throw new IllegalArgumentException(x("a unique constraint with properties {} already exists", uc));
 		}
@@ -157,7 +163,10 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 		_db = db;
 		getLogger().log(info("loading entity {}", getName()));
+		StringBuilder sb = new StringBuilder();
+		sb.append("INSERT INTO ").append(getTableName()).append("(");
 		// Load all related entities and dependencies:
+		int count = 0;
 		for(Property<?> prop : _propertyList) {
 			if(prop.isForeignKey()) {
 				// Get the foreign entity:
@@ -167,10 +176,26 @@ public abstract class Entity<I extends Instance<?>> {
 				// Record a delete dependency:
 				foreignEntity._dependencies.add(new Dependency((Entity<Instance<?>>)this, prop));
 			}
+			if(!prop.isAutoGenerated()) {
+				if(count > 0) {
+					sb.append(",");
+				}
+				sb.append(prop.getColumnName());
+				count++;
+			}
 		}
+		// Prepare SQL for insert statement:
+		sb.append(") VALUES (?");
+		if(count > 1) {
+			sb.append(Strings.repeat(",?", count-1));
+		}
+		sb.append(")");
+		_insertSql = sb.toString();
+		// Prepare query for find by id:
+		_findById = query().where(id.isEqualTo());
 		// Add the natural key as a constraint:
 		Property<?>[] key = getNaturalKeyProperties();
-		if(key == null) {
+		if(key == null || key.length == 0) {
 			return;
 		}
 		if(key.length == 1) {
@@ -229,7 +254,40 @@ public abstract class Entity<I extends Instance<?>> {
 		i.setPrimaryKey(id);
 		i.flush();
 	}
-	
+
+	public boolean update(I i, Connection c) {
+		Checker.checkNull(i);
+		Checker.checkNull(c);
+		_checkLoadedInto(c);
+		_checkPersisted(i);
+		if(!i.hasUpdates()) {
+			return false;
+		}
+		_checkUniqueConstraintsFor(i, c);
+		i.updateTimestamp();
+		StringBuilder sb = new StringBuilder();
+		sb.append("UPDATE ").append(getTableName()).append(" SET ");
+		Iterator<Entry<Property<?>,Object>> it = i.getUpdates().iterator();
+		while(it.hasNext()) {
+			Entry<Property<?>,Object> entry = it.next();
+			sb.append(entry.getKey().getColumnName());
+			sb.append("='").append(entry.getKey().toPrimitive(entry.getValue())).append("'");
+			if(it.hasNext()) {
+				sb.append(",");
+			}
+		}
+		sb.append(" WHERE id=").append(i.getId());		
+		c.update(sb.toString());
+		i.flush();
+		return true;
+	}
+
+	private void _checkPersisted(I i) {
+		if(!i.persisted()) {
+			throw new IllegalArgumentException("instance has not been persisted");
+		}
+	}
+
 	private void _checkLoadedInto(Connection c) {
 		if(_db != c.database()) {
 			throw new IllegalArgumentException(x("entity '{}' is not available in this connection's database", getName()));
@@ -257,7 +315,7 @@ public abstract class Entity<I extends Instance<?>> {
 			}
 			if(updated) {
 				// They have, we need to check if the constraint has been violated:
-				Instance<?> existing = c.find(this, uc.toArgs(i));
+				Instance<?> existing = c.run(uc.query(), i.args(uc.query())).single();
 				if(existing != null) {
 					if(forInsert) {
 						throw new UniqueConstraintException(uc);
@@ -270,140 +328,28 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 	}
 	
-
-	
-	
-	
-	
-	
-	// TODO performance - we retrieve "existing" multiple times
-	private void _checkUnique(Instance<?> i, Property<?> prop, Object value, boolean insert) {
-		Instance<?> existing = findSingle(new QueryArg(prop, value, QueryArg.Operator.EQUAL));
-		if(existing != null) {
-			if(insert) {
-				throw new UniqueConstraintException(prop, value);				
-			}
-			if(!existing.equals(i)) {
-				throw new UniqueConstraintException(prop, value);
-			}
-		}
+	protected Query<I> query() {
+		return new Query<I>(this);
 	}
 	
-	private void _checkUniqueConstraints(Instance<?> i, boolean insert, Set<Property<?>> updatedProps) {
-		Iterator<UniqueConstraint> it = _getUniqueConstraints();
-		while(it.hasNext()) {
-			UniqueConstraint uc = it.next();
-			// Check if any of the constraint's properties have been updated:
-			boolean updated = false;
-			checkUpdates:
-			for(Property<?> prop : uc.getProperties()) {
-				if(updatedProps.contains(prop)) {
-					updated = true;
-					break checkUpdates;
-				}
-			}
-			if(updated) {
-				// They have, we need to check if the constraint has been violated:
-				Instance<?> existing = findSingle(uc.toArgs(i));
-				if(existing != null) {
-					if(insert) {
-						throw new UniqueConstraintException(uc);
-					}
-					if(!existing.equals(i)) {
-						throw new UniqueConstraintException(uc);
-					}
-				}
-			}
-		}
-	}	
+	public I find(Long id, Connection c) {
+		Checker.checkNull(c);
+		Checker.checkMinValue(id, 1);
+		return c.run(_findById, id).single();
+	}
 	
-	public void insert(I i) {
-		Checker.checkNull(i);
-		_checkLoaded();
-		if(i.persisted()) {
-			throw new IllegalArgumentException("entity has already been persisted");
-		}
-		// Get a snapshot of updates to check constraints:
-		Set<Property<?>> updatedProps = i.getUpdatedProperties();
-    	// Validate constraints:
-		// Note: the following constraints are already validated on Instance.setValue:
-		// Data type, format, read-only, auto-generated. Mandatory is also validated
-		// on Instance.setValue, but we need to check for omitted properties.
-		for(Property<?> prop : getProperties().values()) {
-			// Skip the primary key:
-			if(prop == id) {
-				continue;
-			}
-			Object value = i.getValue(prop);
-			// Automatically generate:
-			if(prop.isAutoGenerated()) {
-				// TODO add generators
-				throw new IntegrityException();
-			}
-			// Default value:
-			if(value == null) {
-				Object def = prop.getDefaultValue();
-				if(def != null) {
-					value = def;
-				}
-			}
-			// Mandatory:
-			if(prop.isMandatory()) {
-				if(value == null) {
-					throw new MandatoryConstraintException(prop);
-				}
-			}
-			// Unique:
-			if(prop.isUnique() && value != null) {
-				// If the property is auto-generated, we already checked for uniqueness above.
-				if(!prop.isAutoGenerated()) {
-					_checkUnique(i, prop, value, true);
-				}
-			}
-			// All okay, set the value. Note that we will lose some updates in case
-			// one property validation fails after others have been validated successfully.
-			// However, because this is an unrecoverable exception, we don't care.
-			i.flush(prop, value);
-		}
-		_checkUniqueConstraints(i, true, updatedProps);
-		getLogger().log(info("inserting instance [{}]", i));
-		_put(i);
-		getLogger().log(info("persisted with id {}", i.getId()));
-	}
+	
+	// OLD
 
-	public boolean update(I i) {
+	/*
+	public boolean save(I i, Connection c) {
 		Checker.checkNull(i);
-		_checkLoaded();
-		_checkPersisted(i);
-		if(!i.hasUpdates()) {
-			return false;
-		}
-		// Get a snapshot of updates to check constraints:
-		Set<Property<?>> updatedProps = i.getUpdatedProperties();
-		// Check updated properties:
-		for(Entry<Property<?>, Object> entry : i.getUpdates()) {
-			Property<?> prop = entry.getKey();
-			Object value = entry.getValue();
-			// On update, we only need to validate unique constraints.
-			// All others are validated on Instance.setValue.
-			if(prop.isUnique() && value != null) {
-				_checkUnique(i, prop, value, false);
-			}
-			i.flush(prop, value);
-		}
-		_checkUniqueConstraints(i, false, updatedProps);
-		i.flush(timeUpdated, new Date());
-		getLogger().log(info("updating instance [{}]", i));
-		_put(i);
-		return true;
-	}
+		Checker.checkNull(c);
+		_checkLoadedInto(c);
 
-	public boolean save(I i) {
-		Checker.checkNull(i);
-		_checkLoaded();
 		I existing = findSingle(i.getNaturalKeyAsArg());
 		if(existing == null) {
-			insert(i);
+			insert(i, c);
 			return true;
 		}
 		existing.updateFrom(i);
@@ -448,7 +394,7 @@ public abstract class Entity<I extends Instance<?>> {
 		_ds.delete(i.getGoogleEntity().getKey());
 	}
 
-	public void deleteWhere(QueryArg ... params) {
+	public void deleteWhere(Predicate ... params) {
 		_checkLoaded();
 		getLogger().log(info("running query: DELETE FROM {} WHERE {}", getName(), params));
 		// TODO use Query().setKeysOnly for better performance
@@ -480,13 +426,13 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 	}
 	
-	public I findSingle(QueryArg ... args) {
+	public I findSingle(Predicate ... args) {
 		Checker.checkEmpty(args);
 		Checker.checkNullElements(args);
 		_checkLoaded();
 		// Check if id is an argument:
-		QueryArg idArg = null;
-		for(QueryArg arg : args) {
+		Predicate idArg = null;
+		for(Predicate arg : args) {
 			if(arg.getProperty().getName().equals("id")) {
 				idArg = arg;
 				break;
@@ -500,7 +446,7 @@ public abstract class Entity<I extends Instance<?>> {
 				return null;
 			}
 			// Check if entity matches filter values:
-			for(QueryArg arg : args) {
+			for(Predicate arg : args) {
 				if(arg != idArg) {
 					Object value = i.getValue(arg.getProperty());
 					if(value == null && arg.getValue() != null) {
@@ -529,7 +475,7 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 	}
 	
-	public QueryResult<I> findWhere(QueryArg ... args) {
+	public QueryResult<I> findWhere(Predicate ... args) {
 		Checker.checkNullElements(args);
 		_checkLoaded();
 		Query<I> q = new Query<>(this).addWhere(args);
@@ -560,12 +506,6 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 	}
 
-	// TODO is this used more than once?
-	private void _checkPersisted(I i) {
-		if(!i.persisted()) {
-			throw new IllegalArgumentException("instance has not been persisted");
-		}
-	}
 
 	private void _put(I i) {
     	// Consistency check:
@@ -603,4 +543,5 @@ public abstract class Entity<I extends Instance<?>> {
 			}
 		};
 	}
+	*/
 }

@@ -29,10 +29,10 @@ public class SessionsSignInEndpointV1 extends Endpoint {
 		}
 		else {
 			if(user.equals(s.user(c))) {
-				c.update(s.accessed());
+				Sessions.get().update(s.accessed(), c);
 			}
 			else {
-				c.update(s.close("signed out"));
+				Sessions.get().update(s.close("signed out"), c);
 				s = _insertSessionFor(user, c);
 			}
 		}

@@ -7,6 +7,6 @@ public abstract class ActiveEntity<I extends ActiveInstance<?>> extends Entity<I
 
 	protected ActiveEntity(String tableName) {
 		super(tableName);
-		active = addProperty(Boolean.class, "active", Boolean.TRUE);
+		active = addProperty(Boolean.class, "active", "active", Boolean.TRUE);
 	}
 }

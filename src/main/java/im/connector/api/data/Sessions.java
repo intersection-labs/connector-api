@@ -50,11 +50,11 @@ public class Sessions extends Entity<Session> {
 	
 	private Sessions() {
 		super("sessions");
-		uuid = addProperty(UUID.class, "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
-		user = addProperty(User.class, "user", Property.OnDelete.CASCADE, Constraint.MANDATORY);
-		timeLastAccessed = addProperty(Date.class, "timeLastAccessed");
-		timeClosed = addProperty(Date.class, "timeClosed");
-		closeReason = addProperty(String.class, "closeReason");
+		uuid = addProperty(UUID.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
+		user = addProperty(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY);
+		timeLastAccessed = addProperty(Date.class, "timeLastAccessed", "time_last_accessed");
+		timeClosed = addProperty(Date.class, "timeClosed", "time_closed");
+		closeReason = addProperty(String.class, "closeReason", "close_reason");
 	}
 
 	public Property<?>[] getNaturalKeyProperties() {
@@ -65,7 +65,7 @@ public class Sessions extends Entity<Session> {
 		Checker.checkNull(uuid);
 		Checker.checkNull(c);
 		if(_uuid == null) {
-			_uuid = query().where(uuid);
+			_uuid = query().where(this.uuid.isEqualTo());
 		}
 		return c.run(_uuid, uuid).single();
 	}
