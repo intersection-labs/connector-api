@@ -35,9 +35,10 @@ public class UserFields extends ActiveEntity<UserField> {
 	private Query<UserField> _listFor;
 
 	private UserFields() {
+		super("user_fields");
 		user = addProperty(User.class, "user", Property.OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
 		type = addProperty(FieldType.class, "type", Constraint.MANDATORY, Constraint.READ_ONLY);
-		value = addProperty(String.class, "value", Constraint.MANDATORY);
+		value = addProperty(String.class, "value", Constraint.MANDATORY, Constraint.UNIQUE);
 		label = addProperty(String.class, "label");
 		validated = addProperty(Boolean.class, "validated", Boolean.FALSE, Constraint.MANDATORY);
 	}

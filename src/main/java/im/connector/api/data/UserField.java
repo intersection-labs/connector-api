@@ -18,8 +18,12 @@ public class UserField extends ActiveInstance<UserFields> {
 		setLabel(label);
 		setValue(value);
 	}
-	
-	// Getters / setters:
+
+	// Impl:
+	public UserFields getEntity() { return UserFields.get(); }
+	public String describe() { return getLabel() + ": " + getValue(); }
+
+	// Getters and setters:
 	public User findUser(Connection c) { return getValue(getEntity().user, c); }
 	public FieldType getType() { return getValue(getEntity().type); }
 	public UserField setType(FieldType value) { setValue(getEntity().type, value); return this; }
@@ -29,7 +33,6 @@ public class UserField extends ActiveInstance<UserFields> {
 	public UserField setLabel(String value) { setValue(getEntity().label, value); return this; }
 	public Boolean getValidated() { return getValue(getEntity().validated); }
 	public UserField setValidated(Boolean value) { setValue(getEntity().validated, value); return this; }
-	public String describe() { return getLabel() + ": " + getValue(); }
 	
 	// Custom methods:
 	public String getCalculatedLabel() {

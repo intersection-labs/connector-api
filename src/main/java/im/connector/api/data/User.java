@@ -16,11 +16,12 @@ public class User extends Instance<Users> implements Person<UserField> {
 	public User() {
 	}
 	
-	public String describe() {
-		return Common.getDescription(this);
-	}
 
-	// Getters / setters:
+	// Impl:
+	public Users getEntity() { return Users.get(); }
+	public String describe() { return Common.getDescription(this); }
+
+	// Getters and setters:
 	public String getFirstName() { return getValue(getEntity().firstName); }
 	public User setFirstName(String firstName) { setValue(getEntity().firstName, firstName); return this; }
 	public String getLastName() { return getValue(getEntity().lastName); }

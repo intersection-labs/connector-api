@@ -34,13 +34,11 @@ public abstract class Instance<E extends Entity<?>> {
 	private final Map<Property<?>,Object> _values;
 	private final Map<Property<?>,Object> _updates;
 	private boolean _persisted;
-	private E _e;
 	
 	protected Instance() {
 		_values = new HashMap<>();
 		_updates = new HashMap<>();
 		_persisted = false;
-		_e = null;
 	}
 
 	public boolean equals(Object o) {
@@ -82,17 +80,7 @@ public abstract class Instance<E extends Entity<?>> {
 		return sb.toString();
 	}
 
-	@SuppressWarnings("unchecked")
-	public E getEntity() {
-		if(_e == null) {
-			_e = (E)Entities.getEntityForInstance(getClass());
-			if(_e == null) {
-				throw new IntegrityException(Entities.getEntities().size());
-			}
-		}
-		return _e;
-	}
-
+	public abstract E getEntity();
 	public abstract String describe();
 
 	public final Long getId() { return getValue(getEntity().id); }
@@ -171,6 +159,20 @@ public abstract class Instance<E extends Entity<?>> {
 			arg[i] = new QueryArg(props[i], getValue(props[i]), QueryArg.Operator.EQUAL);
 		}
 		return arg;
+	}
+
+	// For Connection:
+	<T> T setDefaultValueFor(Property<T> prop) {
+		T value = prop.getDefaultValue();
+		setValue(prop, value);
+		return value;
+	}
+	
+	// For Connection:
+	void setPrimaryKey(Long key) {
+		Checker.checkMinValue(key, 1);
+		_values.put(getEntity().id, key);
+		_persisted = true;
 	}
 
 	// For Entity:

@@ -49,6 +49,7 @@ public class Sessions extends Entity<Session> {
 	private Query<Session> _uuid;
 	
 	private Sessions() {
+		super("sessions");
 		uuid = addProperty(UUID.class, "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
 		user = addProperty(User.class, "user", Property.OnDelete.CASCADE, Constraint.MANDATORY);
 		timeLastAccessed = addProperty(Date.class, "timeLastAccessed");

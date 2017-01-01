@@ -17,15 +17,18 @@ public class Session extends Instance<Sessions> {
 	public Session(UUID uuid) {
 		this.setValue(getEntity().uuid, uuid);
 	}
-	
-	// Getters / setters:
+
+	// Impl:
+	public Sessions getEntity() { return Sessions.get(); }
+	public String describe() { return uuid().toString(); }
+
+	// Getters and setters:
 	public UUID uuid() { return getValue(getEntity().uuid); }
 	public User user(Connection c) { return getValue(getEntity().user, c); }
 	public Session user(User value) { setValue(getEntity().user, value); return this; }
 	public Date timeLastAccessed() { return getValue(getEntity().timeLastAccessed); }
 	public Date timeClosed() { return getValue(getEntity().timeClosed); }
 	public String closeReason() { return getValue(getEntity().closeReason); }
-	public String describe() { return uuid().toString(); }
 
 	// Custom methods:
 	public Session accessed() {

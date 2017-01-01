@@ -51,6 +51,7 @@ public class Contacts extends ActiveEntity<Contact> {
 	private Query<Contact> _listFor;
 
 	private Contacts() {
+		super("contacts");
 		owner = addProperty(User.class, "owner", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
 		me = addProperty(Boolean.class, "me", Boolean.FALSE, Constraint.MANDATORY, Constraint.READ_ONLY);
 		firstName = addProperty(String.class, "firstName");

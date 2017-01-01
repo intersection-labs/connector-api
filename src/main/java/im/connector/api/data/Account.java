@@ -19,10 +19,12 @@ public class Account extends Instance<Accounts> {
 
 	public Account() {
 	}
-	
+
+	// Impl:
+	public Accounts getEntity() { return Accounts.get(); }
 	public String describe() { return getType()+"/"+findGoogleEmail().getValue(); }
 
-	// Getters / setters:
+	// Getters and setters:
 	public Type getType() { return getValue(getEntity().type); }
 	public User findUser() { return getValue(getEntity().user); }
 	public UserField findGoogleEmail() { return getValue(getEntity().email); }

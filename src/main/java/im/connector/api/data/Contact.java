@@ -26,12 +26,12 @@ public class Contact extends ActiveInstance<Contacts> implements Person<ContactF
 
 	public Contact() {
 	}
-	
-	public String describe() {
-		return Common.getDescription(this);
-	}
 
-	// Getters / setters:
+	// Impl:
+	public Contacts getEntity() { return Contacts.get(); }
+	public String describe() { return Common.getDescription(this); }
+
+	// Getters and setters:
 	public User findOwner() { return getValue(getEntity().owner); }
 	public String getFirstName() { return getValue(getEntity().firstName); }
 	public Contact setFirstName(String firstName) { setValue(getEntity().firstName, firstName); return this; }

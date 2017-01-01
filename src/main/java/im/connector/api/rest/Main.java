@@ -1,11 +1,9 @@
 package im.connector.api.rest;
-import java.net.URL;
 import io.unequal.reuse.data.Database;
 import io.unequal.reuse.http.Env;
 import io.unequal.reuse.http.RestServer;
 import io.unequal.reuse.http.Settings;
-import io.unequal.reuse.util.Config;
-
+import im.connector.api.data.ConnectorModel;
 
 
 public class Main {
@@ -16,6 +14,7 @@ public class Main {
 		// Load database:
 		boolean local = App.env() == Env.DEV;
 		Database db = new Database(App.databaseUrl(), local);
+		db.load(new ConnectorModel());
 		// Configure server:
 		Settings settings = new Settings();
 		settings.port(App.port());

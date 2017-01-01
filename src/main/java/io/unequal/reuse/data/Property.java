@@ -72,7 +72,7 @@ public class Property<T> {
 	public T getDefaultValue() {
 		return _default == null ? null : _default.generate();
 	}
-
+	
 	public boolean isMandatory() {
 		return _mandatory;
 	}

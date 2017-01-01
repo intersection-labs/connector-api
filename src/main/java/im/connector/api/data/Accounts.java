@@ -55,6 +55,7 @@ public class Accounts extends Entity<Account> {
 	private Query<Account> _listFor;
 	
 	public Accounts() {
+		super("accounts");
 		type = addProperty(Type.class, "type", Constraint.MANDATORY, Constraint.READ_ONLY);
 		user = addProperty(User.class, "user", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
 		email = addProperty(UserField.class, "email", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);

@@ -45,7 +45,7 @@ public class SessionsSignInEndpointV1 extends Endpoint {
 
 	private Session _insertSessionFor(User user, Connection c) {
 		Session s = new Session(UUID.randomUUID());
-		c.insert(s.user(user).accessed());
+		Sessions.get().insert(s.user(user).accessed(), c);
 		return s;
 	}
 }
