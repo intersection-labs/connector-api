@@ -9,7 +9,6 @@ import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.data.Query;
-import io.unequal.reuse.data.QueryResult;
 import io.unequal.reuse.data.Property.Constraint;
 import io.unequal.reuse.http.JsonObject;
 import io.unequal.reuse.http.Request;
@@ -51,8 +50,8 @@ public class Sessions extends Entity<Session> {
 		super("sessions");
 		uuid = addProperty(String.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
 		user = addProperty(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY);
-		timeLastAccessed = addProperty(Date.class, "timeLastAccessed", "time_last_accessed");
-		timeClosed = addProperty(Date.class, "timeClosed", "time_closed");
+		timeLastAccessed = addProperty(Timestamp.class, "timeLastAccessed", "time_last_accessed");
+		timeClosed = addProperty(Timestamp.class, "timeClosed", "time_closed");
 		closeReason = addProperty(String.class, "closeReason", "close_reason");
 	}
 

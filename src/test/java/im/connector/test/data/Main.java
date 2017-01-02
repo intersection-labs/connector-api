@@ -1,26 +1,27 @@
-package im.connector.test;
-import java.io.PrintStream;
-import io.unequal.reuse.data.Database;
-import io.unequal.reuse.data.Connection;
+package im.connector.test.data;
+import static java.lang.System.*;
+import org.junit.*;
+import static org.junit.Assert.*;
+import io.unequal.reuse.data.*;
 import io.unequal.reuse.http.Env;
 import io.unequal.reuse.util.Checker;
 import im.connector.api.data.*;
 import im.connector.api.rest.App;
 
 
-public class Tester {
+public class Main {
 
 	// TYPE:
 	public static void main(String[] args) {
-		Tester tester = new Tester();
+		Main tester = new Main();
 		tester.test();
-		tester.out().println("done.");
+		out.println("done.");
 	}
 
 	// INSTANCE:
 	private final Database _db;
 	
-	public Tester() {
+	public Main() {
 		// Load config:
 		App.loadConfig();
 		// Load database:
@@ -29,11 +30,24 @@ public class Tester {
 		_db.load(new ConnectorModel());
 	}
 
-	public PrintStream out() {
-		return System.out;
-	}
-
 	public void test() {
+		// TODO delete existing
+		
+		User ripley = new User().setFirstName("Ellen").setLastName("Ripley").setOrganization("Weyland-Yutani Corporation");
+		try {
+			out.print("Testing mandatory contraints... ");
+			ripley.setStatus(null);
+			fail();
+		}
+		catch(MandatoryConstraintException mce) {
+			out.println(mce);
+		}
+		
+		
+		
+		
+		
+		/*
 		boolean recreate = false;
 		User lisa = _addUser("Lisa", "Smith", "lisa.connector@gmail.com", "lisa.smith@innoventive.com", recreate);
 		User carlos = _addUser("Carlos", "Silva", "hiCarlosSilva@gmail.com", "carlos@connector.im", recreate);
@@ -43,6 +57,7 @@ public class Tester {
 		_addUser("Bogdan", "Geleta", "bogdan.geleta@gmail.com", null, recreate);
 		_addUser("Filipa", "Fernandes", "pipa.fernandes@gmail.com", null, recreate);
 		_addUser("Connor", "McFadden", "connormcfadden7@gmail.com", null, recreate);
+		*/
 	}
 
 	private User _addUser(String firstName, String lastName, String pEmail, String wEmail, boolean recreate) {
@@ -50,16 +65,16 @@ public class Tester {
 		Checker.checkEmpty(lastName);
 		Checker.checkEmpty(pEmail);
 		try(Connection c = _db.connect()) {
-			User user = Users.get().byEmail(pEmail, c);
+			User user = Users.get().withEmail(pEmail, c);
 			if(recreate) {
 				if(user != null) {
 					//Users.get().delete(user);
-					out().println("Deleted existing "+firstName);
+					out.println("Deleted existing "+firstName);
 				}
 				user = null;
 			}
 			if(user == null) {
-				out().print(recreate ? "Re-creating "+firstName+"... " : "Creating "+firstName+"... ");
+				out.print(recreate ? "Re-creating "+firstName+"... " : "Creating "+firstName+"... ");
 				user = new User().setFirstName(firstName).setLastName(lastName).setStatus(Users.Status.REGISTERED);
 				Users.get().insert(user, c);
 				UserField pEmailField = new UserField(user, FieldType.EMAIL, "Personal email", pEmail);
@@ -70,7 +85,7 @@ public class Tester {
 				}
 				Account account = new Account(Accounts.Type.GOOGLE, user, pEmailField);
 				Accounts.get().insert(account, c);
-				out().println("done.");
+				out.println("done.");
 			}
 			return user;
 		}

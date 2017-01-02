@@ -108,7 +108,7 @@ public class Connection implements AutoCloseable {
 				I instance = Instance.newFrom(query.type());
 				for(int j=0; j<propList.size(); j++) {
 					Property<?> prop = propList.get(j);
-					instance.flush(prop, rs.getObject(j+1));
+					instance.update(prop, rs.getObject(j+1), true);
 				}
 				results.add(instance);
 			}
@@ -118,33 +118,6 @@ public class Connection implements AutoCloseable {
 		}
 		catch(SQLException sqle) {
 			throw new DatabaseException(sqle);
-		}
-	}
-	
-	private void _setArg(PreparedStatement ps, int index, Object arg) throws SQLException {
-		if(arg == null) {
-			ps.setObject(index, null);
-		}
-		else if(arg.getClass() == Long.class) {
-			ps.setLong(index, (Long)arg);
-		}
-		else if(arg.getClass() == Integer.class) {
-			ps.setInt(index, (Integer)arg);
-		}
-		else if(arg.getClass() == Double.class) {
-			ps.setDouble(index, (Double)arg);
-		}
-		else if(arg.getClass() == String.class) {
-			ps.setString(index, (String)arg);
-		}
-		else if(arg.getClass() == Boolean.class) {
-			ps.setBoolean(index, (Boolean)arg);
-		}
-		else if(arg.getClass() == Date.class) {
-			ps.setTimestamp(index, new Timestamp(((Date)arg).getTime()));
-		}
-		else {
-			throw new IntegrityException(arg.getClass());
 		}
 	}
 }

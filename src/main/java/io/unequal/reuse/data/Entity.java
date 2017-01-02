@@ -1,5 +1,6 @@
 package io.unequal.reuse.data;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -204,6 +205,12 @@ public abstract class Entity<I extends Instance<?>> {
 			// We don't want to add a single unique property as a constraint:
 			return;
 		}
+		for(Property<?> prop : key) {
+			if(prop.isUnique()) {
+				// No need to add the constraint, since one of the properties is already unique:
+				return;
+			}
+		}
 		_unique(key);
 	}
 	
@@ -239,7 +246,10 @@ public abstract class Entity<I extends Instance<?>> {
 			}
 			// Default value:
 			if(value == null) {
-				value = i.setDefaultValueFor(prop);
+				value = prop.getDefaultValue();
+				if(value != null) {
+					i.update(prop, value, false);
+				}
 			}
 			// Mandatory:
 			if(prop.isMandatory()) {
@@ -268,7 +278,7 @@ public abstract class Entity<I extends Instance<?>> {
 			return false;
 		}
 		_checkUniqueConstraintsFor(i, c);
-		i.updateTimestamp();
+		i.update(timeUpdated, Timestamp.from(Instant.now()), false);
 		StringBuilder sb = new StringBuilder();
 		sb.append("UPDATE ").append(getTableName()).append(" SET ");
 		Iterator<Entry<Property<?>,Object>> it = i.getUpdates().iterator();
@@ -319,7 +329,7 @@ public abstract class Entity<I extends Instance<?>> {
 			}
 			if(updated) {
 				// They have, we need to check if the constraint has been violated:
-				Instance<?> existing = c.run(uc.query(), i.args(uc.query())).single();
+				Instance<?> existing = c.run(uc.query(), i.args(uc.query(), c)).single();
 				if(existing != null) {
 					if(forInsert) {
 						throw new UniqueConstraintException(uc);

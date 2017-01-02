@@ -102,7 +102,15 @@ public class Query<I extends Instance<?>> {
 	public String sql() {
 		if(_sql == null) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("SELECT * FROM ").append(_entity.getTableName()).append(" WHERE ");
+			sb.append("SELECT ");
+			Iterator<Property<?>> itProps = _entity.propertyList().iterator();
+			while(itProps.hasNext()) {
+				sb.append(itProps.next().getColumnName());
+				if(itProps.hasNext()) {
+					sb.append(",");
+				}
+			}
+			sb.append(" FROM ").append(_entity.getTableName()).append(" WHERE ");
 			Iterator<Predicate> itArgs = _predicates.iterator();
 			while(itArgs.hasNext()) {
 				sb.append(itArgs.next().sql());

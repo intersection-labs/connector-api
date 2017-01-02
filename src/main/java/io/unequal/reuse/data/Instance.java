@@ -162,11 +162,6 @@ public abstract class Instance<E extends Entity<?>> {
 		return _persisted;
 	}
 
-	// For Entity:
-	void updateTimestamp() {
-		_updates.put(getEntity().timeUpdated, new Date());
-	}
-
 	public Predicate[] getNaturalKeyAsArg() {
 		Property<?>[] props = getEntity().getNaturalKeyProperties();
 		Predicate[] arg = new Predicate[props.length];
@@ -174,13 +169,6 @@ public abstract class Instance<E extends Entity<?>> {
 			arg[i] = new Predicate(props[i], Predicate.Operator.EQUAL, getValue(props[i]));
 		}
 		return arg;
-	}
-
-	// For Connection:
-	<T> T setDefaultValueFor(Property<T> prop) {
-		T value = prop.getDefaultValue();
-		setValue(prop, value);
-		return value;
 	}
 	
 	// For Connection:
@@ -191,12 +179,12 @@ public abstract class Instance<E extends Entity<?>> {
 	}
 
 	// For ???
-	public Object[] args(Query<?> query) {
+	public Object[] args(Query<?> query, Connection c) {
 		Checker.checkNull(query);
 		Property<?>[] params = query.params();
 		Object[] args = new Object[params.length];
 		for(int i=0; i<args.length; i++) {
-			args[i] = getValue(params[i]);
+			args[i] = getValue(params[i], c);
 		}
 		return args;
 	}
@@ -210,7 +198,6 @@ public abstract class Instance<E extends Entity<?>> {
 	Set<Property<?>> getUpdatedProperties() {
 		return new HashSet<>(_updates.keySet());
 	}
-
 
 	// For Entity:
 	void updateFrom(Instance<?> i) {
@@ -234,8 +221,13 @@ public abstract class Instance<E extends Entity<?>> {
 	}
 
 	// For Connection:
-	void flush(Property<?> prop, Object value) {
-		_values.put(prop, value);
+	void update(Property<?> prop, Object value, boolean flush) {
+		if(flush) {
+			_values.put(prop, value);
+		}
+		else {
+			_updates.put(prop, value);
+		}
 	}
 	
 	private void _checkProperty(Property<?> prop) {

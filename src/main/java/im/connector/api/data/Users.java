@@ -77,7 +77,7 @@ public class Users extends ActiveEntity<User> {
 		return jUser;
 	}
 	
-	public User byEmail(String email, Connection c) {
+	public User withEmail(String email, Connection c) {
 		Checker.checkEmpty(email);
 		Checker.checkNull(c);
 		UserField uf = UserFields.get().email(email, false, c);
