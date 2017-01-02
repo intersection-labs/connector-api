@@ -1,6 +1,6 @@
 package io.unequal.reuse.data;
 
-public interface ValueGenerator<T> {
+public interface Generator<T> {
 
 	public T generate();
 }

@@ -40,11 +40,11 @@ public class Connection implements AutoCloseable {
 		}
 	}
 
-	long insert(String sql, Object[] args) {
+	long insert(String sql, int[] types, Object[] args) {
 		try {
 			PreparedStatement ps = _c.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
 			for(int i=0; i<args.length; i++) {
-				_setArg(ps, i+1, args[i]);
+				ps.setObject(i+1, args[i], types[i]);
 			}
 			_logger.info(x("Executing query: {}", ps));
 			ps.executeUpdate();
@@ -91,7 +91,7 @@ public class Connection implements AutoCloseable {
 			}
 			int i=0;
 			for(; i<params.length; i++) {
-				_setArg(ps, i+1, params[i].toPrimitive(args[i]));
+				ps.setObject(i+1, params[i].unwrap(args[i]), params[i].typeMapping().sqlType());
 			}
 			if(query.limit() == null) {
 				ps.setInt(++i, query.limit());
@@ -101,13 +101,14 @@ public class Connection implements AutoCloseable {
 			}
 			_logger.info(x("Executing query: {}", ps));
 			ResultSet rs = ps.executeQuery();
+			rs.setFetchDirection(ResultSet.FETCH_FORWARD);
 			List<I> results = new ArrayList<>();
 			List<Property<?>> propList = query.entity().propertyList();
 			while(rs.next()) {
 				I instance = Instance.newFrom(query.type());
 				for(int j=0; j<propList.size(); j++) {
 					Property<?> prop = propList.get(j);
-					instance.setInternally(prop, prop.toObject(rs.getObject(j+1), this));
+					instance.flush(prop, rs.getObject(j+1));
 				}
 				results.add(instance);
 			}

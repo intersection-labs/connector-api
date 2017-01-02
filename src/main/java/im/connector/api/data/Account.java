@@ -3,8 +3,8 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
-import java.util.Date;
-
+import java.sql.Timestamp;
+import java.time.Instant;
 import im.connector.api.data.Accounts.Type;
 import io.unequal.reuse.data.Instance;
 
@@ -30,10 +30,10 @@ public class Account extends Instance<Accounts> {
 	public UserField findGoogleEmail() { return getValue(getEntity().email); }
 	public String getAccessToken() { return getValue(getEntity().accessToken); }
 	public Account setAccessToken(String value) { setValue(getEntity().accessToken, value); return this; }
-	public Date getAccessTokenDate() { return getValue(getEntity().accessTokenDate); }
-	public Account setAccessTokenDate(Date value) { setValue(getEntity().accessTokenDate, value); return this; }
+	public Timestamp getAccessTokenTime() { return getValue(getEntity().accessTokenTime); }
+	public Account setAccessTokenTime(Timestamp value) { setValue(getEntity().accessTokenTime, value); return this; }
 	public String getRefreshToken() { return getValue(getEntity().refreshToken); }
 	public Account setRefreshToken(String value) { setValue(getEntity().refreshToken, value); return this; }
-	public Date getLastSyncDate() { return getValue(getEntity().lastSyncDate); }
-	public Account setLastSyncDate() { setValue(getEntity().lastSyncDate, new Date()); return this; }
+	public Timestamp getLastSyncTime() { return getValue(getEntity().lastSyncTime); }
+	public Account setLastSyncDate() { setValue(getEntity().lastSyncTime, Timestamp.from(Instant.now())); return this; }
 }

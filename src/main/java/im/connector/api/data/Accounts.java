@@ -4,7 +4,8 @@
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
 import java.io.IOException;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.Instant;
 import io.unequal.reuse.data.Constant;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
@@ -48,8 +49,8 @@ public class Accounts extends Entity<Account> {
 	public final Property<UserField> email;
 	public final Property<String> refreshToken;
 	public final Property<String> accessToken;
-	public final Property<Date> accessTokenDate;
-	public final Property<Date> lastSyncDate;
+	public final Property<Timestamp> accessTokenTime;
+	public final Property<Timestamp> lastSyncTime;
 	// Queries:
 	private Query<Account> _listFor;
 	
@@ -60,8 +61,8 @@ public class Accounts extends Entity<Account> {
 		email = addProperty(UserField.class, "email", "email_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);
 		refreshToken = addProperty(String.class, "refreshToken", "refresh_token");
 		accessToken = addProperty(String.class, "accessToken", "access_token");
-		accessTokenDate = addProperty(Date.class, "accessTokenDate", "access_token_date");
-		lastSyncDate = addProperty(Date.class, "lastSyncDate", "last_sync_date");
+		accessTokenTime = addProperty(Timestamp.class, "accessTokenTime", "access_token_time");
+		lastSyncTime = addProperty(Timestamp.class, "lastSyncTime", "last_sync_time");
 	}
 
 	public Property<?>[] getNaturalKeyProperties() { return new Property<?>[] { user, email }; }
@@ -76,7 +77,7 @@ public class Accounts extends Entity<Account> {
 		}
 		// Check access token:
 		TimeValue now = new TimeValue();
-		TimeValue tokenTime = new TimeValue(account.getAccessTokenDate());
+		TimeValue tokenTime = new TimeValue(account.getAccessTokenTime());
 		// Google access tokens expire after 1 hour (3600 seconds)
 		if(now.getAs(Measure.SECONDS) - tokenTime.getAs(Measure.SECONDS) > 3500) {
 			getLogger().info("access token no longer valid, refreshing");
@@ -98,7 +99,7 @@ public class Accounts extends Entity<Account> {
 			getLogger().log(info("retrived new access token: {}", accessToken));
 			// Save new access token:
 			account.setAccessToken(accessToken);
-			account.setAccessTokenDate(new Date());
+			account.setAccessTokenTime(Timestamp.from(Instant.now()));
 			account.setAccessToken(accessToken);
 			update(account, c);
 		}

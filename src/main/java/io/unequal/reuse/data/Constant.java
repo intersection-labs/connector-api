@@ -11,15 +11,15 @@ import io.unequal.reuse.util.Util;
 public abstract class Constant {
 
 	// TYPE:
-	private static final Map<Class<?>,Map<Long,Constant>> _register = new HashMap<>();
+	private static final Map<Class<?>,Map<Integer,Constant>> _register = new HashMap<>();
 
 	public static ImmutableCollection<Constant> getValuesFor(Class<?> c) {
 		Checker.checkNull(c);
 		return new ImmutableCollection<Constant>(_register.get(c).values());
 	}
 	
-	public static Constant valueOf(Class<?> c, long code) {
-		Map<Long,Constant> map = _register.get(c);
+	public static Constant valueOf(Class<?> c, int code) {
+		Map<Integer,Constant> map = _register.get(c);
 		if(map == null) {
 			Reflection.load(c.getName());
 			map = _register.get(c);
@@ -31,7 +31,7 @@ public abstract class Constant {
 	}
 	
 	private static void _register(Constant c) {
-		Map<Long,Constant> constants = _register.get(c.getClass());
+		Map<Integer,Constant> constants = _register.get(c.getClass());
 		if(constants == null) {
 			constants = new HashMap<>();
 			_register.put(c.getClass(), constants);
@@ -44,16 +44,16 @@ public abstract class Constant {
 	
 	
 	// INSTANCE:
-	private final long _code;
+	private final int _code;
 	private final String _description;
 
-	protected Constant(long code, String description) {
+	protected Constant(int code, String description) {
 		_code = code;
 		_description = description;
 		_register(this);
 	}
 	
-	public long getCode() {
+	public int getCode() {
 		return _code;
 	}
 	
@@ -72,7 +72,7 @@ public abstract class Constant {
 	public int hashCode() {
 		int hash = 7;
 		hash = 31 * hash + getClass().hashCode();
-		hash = 31 * hash + (int)_code;
+		hash = 31 * hash + _code;
 		return hash;
 	}
 }

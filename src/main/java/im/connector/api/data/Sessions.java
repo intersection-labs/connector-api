@@ -3,8 +3,7 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
-import java.util.Date;
-import java.util.UUID;
+import java.sql.Timestamp;
 import javax.servlet.http.Cookie;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
@@ -40,17 +39,17 @@ public class Sessions extends Entity<Session> {
 	}
 	
 	// INSTANCE:
-	public final Property<UUID> uuid;
+	public final Property<String> uuid;
 	public final Property<User> user;
-	public final Property<Date> timeLastAccessed;
-	public final Property<Date> timeClosed;
+	public final Property<Timestamp> timeLastAccessed;
+	public final Property<Timestamp> timeClosed;
 	public final Property<String> closeReason;
 	// Queries:
 	private Query<Session> _uuid;
 	
 	private Sessions() {
 		super("sessions");
-		uuid = addProperty(UUID.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
+		uuid = addProperty(String.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
 		user = addProperty(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY);
 		timeLastAccessed = addProperty(Date.class, "timeLastAccessed", "time_last_accessed");
 		timeClosed = addProperty(Date.class, "timeClosed", "time_closed");
@@ -61,7 +60,7 @@ public class Sessions extends Entity<Session> {
 		return new Property<?>[] { uuid };
 	}
 
-	public Session find(UUID uuid, Connection c) {
+	public Session find(String uuid, Connection c) {
 		Checker.checkNull(uuid);
 		Checker.checkNull(c);
 		if(_uuid == null) {
@@ -82,7 +81,7 @@ public class Sessions extends Entity<Session> {
 			return null;
 		}
 		// Cookie found, retrieve session from database:
-		Session session = find(UUID.fromString(sid.getValue()), c);
+		Session session = find(sid.getValue(), c);
 		if(session == null) {
 			getLogger().log(warn("session with UUID {} was not found on the database", sid.getValue()));
 			if(fail) {

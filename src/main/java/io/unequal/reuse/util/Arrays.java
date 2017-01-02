@@ -31,7 +31,7 @@ public class Arrays {
 		return -1;
 	}
 
-	public static boolean contains(Object o, Object[] in) {
+	public static boolean contains(Object o, Object ... in) {
 		return indexOf(o, in) != -1;
 	}
 

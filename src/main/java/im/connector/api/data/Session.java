@@ -14,7 +14,7 @@ public class Session extends Instance<Sessions> {
 	public Session() {
 	}
 	
-	public Session(UUID uuid) {
+	public Session(String uuid) {
 		this.setValue(getEntity().uuid, uuid);
 	}
 
@@ -23,7 +23,7 @@ public class Session extends Instance<Sessions> {
 	public String describe() { return uuid().toString(); }
 
 	// Getters and setters:
-	public UUID uuid() { return getValue(getEntity().uuid); }
+	public String uuid() { return getValue(getEntity().uuid); }
 	public User user(Connection c) { return getValue(getEntity().user, c); }
 	public Session user(User value) { setValue(getEntity().user, value); return this; }
 	public Date timeLastAccessed() { return getValue(getEntity().timeLastAccessed); }
