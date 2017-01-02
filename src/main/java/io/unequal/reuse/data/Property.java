@@ -192,6 +192,7 @@ public class Property<T> {
 	}
 
 	// For Instance:
+	// TODO we need to prevent fetching related entities until they are needed
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	T toObject(Object value, Connection c) {
 		if(value == null) {

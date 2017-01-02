@@ -3,8 +3,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.logging.Logger;
-import io.unequal.reuse.util.Checker;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Date;
 import io.unequal.reuse.util.IntegrityException;
 import static io.unequal.reuse.util.Util.*;
 
@@ -37,11 +40,11 @@ public class Connection implements AutoCloseable {
 		}
 	}
 
-	long insert(String sql, Object[] params) {
+	long insert(String sql, Object[] args) {
 		try {
 			PreparedStatement ps = _c.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-			for(int i=0; i<params.length; i++) {
-				ps.setObject(i+1, params[i]);
+			for(int i=0; i<args.length; i++) {
+				_setArg(ps, i+1, args[i]);
 			}
 			_logger.info(x("Executing query: {}", ps));
 			ps.executeUpdate();
@@ -72,7 +75,7 @@ public class Connection implements AutoCloseable {
 		}
 	}
 
-	public <T extends Instance<?>> QueryResult<T> run(Query<T> query, Object ... args) {
+	public <I extends Instance<?>> QueryResult<I> run(Query<I> query, Object ... args) {
 		try {
 			PreparedStatement ps = _c.prepareStatement(query.sql());
 			Property<?>[] params = query.params();
@@ -88,19 +91,59 @@ public class Connection implements AutoCloseable {
 			}
 			int i=0;
 			for(; i<params.length; i++) {
-				ps.setObject(i+1, params[i].toPrimitive(args[i]));
+				_setArg(ps, i+1, params[i].toPrimitive(args[i]));
 			}
 			if(query.limit() == null) {
-				ps.setInt(i++, query.limit());
+				ps.setInt(++i, query.limit());
 			}
 			if(query.offset() == null) {
-				ps.setInt(i++, query.offset());
+				ps.setInt(++i, query.offset());
 			}
 			_logger.info(x("Executing query: {}", ps));
-			return new QueryResult<T>(query.type(), ps.executeQuery());
+			ResultSet rs = ps.executeQuery();
+			List<I> results = new ArrayList<>();
+			List<Property<?>> propList = query.entity().propertyList();
+			while(rs.next()) {
+				I instance = Instance.newFrom(query.type());
+				for(int j=0; j<propList.size(); j++) {
+					Property<?> prop = propList.get(j);
+					instance.setInternally(prop, prop.toObject(rs.getObject(j+1), this));
+				}
+				results.add(instance);
+			}
+			rs.close();
+			ps.close();
+			return new QueryResult<I>(results);
 		}
 		catch(SQLException sqle) {
 			throw new DatabaseException(sqle);
+		}
+	}
+	
+	private void _setArg(PreparedStatement ps, int index, Object arg) throws SQLException {
+		if(arg == null) {
+			ps.setObject(index, null);
+		}
+		else if(arg.getClass() == Long.class) {
+			ps.setLong(index, (Long)arg);
+		}
+		else if(arg.getClass() == Integer.class) {
+			ps.setInt(index, (Integer)arg);
+		}
+		else if(arg.getClass() == Double.class) {
+			ps.setDouble(index, (Double)arg);
+		}
+		else if(arg.getClass() == String.class) {
+			ps.setString(index, (String)arg);
+		}
+		else if(arg.getClass() == Boolean.class) {
+			ps.setBoolean(index, (Boolean)arg);
+		}
+		else if(arg.getClass() == Date.class) {
+			ps.setTimestamp(index, new Timestamp(((Date)arg).getTime()));
+		}
+		else {
+			throw new IntegrityException(arg.getClass());
 		}
 	}
 }

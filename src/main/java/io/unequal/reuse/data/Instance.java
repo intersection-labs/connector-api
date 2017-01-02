@@ -112,6 +112,7 @@ public abstract class Instance<E extends Entity<?>> {
 		_checkProperty(prop);
 		// Primary key:
 		if(prop == getEntity().id) {
+			// TODO same for timeCreated and timeUpdated
 			throw new IllegalArgumentException("cannot set primary key");
 		}
 		// Validate data type (it should be enforced by the compiler):
@@ -199,6 +200,11 @@ public abstract class Instance<E extends Entity<?>> {
 	// For Entity:
 	Set<Property<?>> getUpdatedProperties() {
 		return new HashSet<>(_updates.keySet());
+	}
+
+	// For Connection:
+	void setInternally(Property<?> prop, Object value) {
+		_values.put(prop, value);
 	}
 
 	// For Entity:

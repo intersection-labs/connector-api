@@ -31,7 +31,7 @@ public class Config {
 			throw new IllegalArgumentException(x("configuration property named '{}' has already been loaded", name));
 		}
 		if(!type.isEnum()) {
-			Checker.checkIllegalValue(type, Integer.class, Long.class, String.class);
+			Checker.checkIllegalValue(type, Integer.class, Long.class, String.class, URL.class);
 		}
 		String value = System.getenv(name);
 		name = name.toLowerCase();

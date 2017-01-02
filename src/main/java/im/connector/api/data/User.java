@@ -5,13 +5,13 @@
 package im.connector.api.data;
 import java.util.List;
 import java.util.Iterator;
-import io.unequal.reuse.data.Instance;
+import io.unequal.reuse.data.ActiveInstance;
 import io.unequal.reuse.data.Query;
 import io.unequal.reuse.data.QueryResult;
 import io.unequal.reuse.http.JsonObject;
 
 
-public class User extends Instance<Users> implements Person<UserField> {
+public class User extends ActiveInstance<Users> implements Person<UserField> {
 
 	public User() {
 	}

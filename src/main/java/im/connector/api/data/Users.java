@@ -1,19 +1,17 @@
 package im.connector.api.data;
+import java.util.List;
+import java.util.Iterator;
 import io.unequal.reuse.data.Constant;
-import io.unequal.reuse.data.Entity;
+import io.unequal.reuse.data.ActiveEntity;
 import io.unequal.reuse.data.Property;
 import io.unequal.reuse.data.Property.Constraint;
-
-import java.util.Iterator;
-import java.util.List;
-
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.http.JsonObject;
 import io.unequal.reuse.util.Checker;
 
 
 
-public class Users extends Entity<User> {
+public class Users extends ActiveEntity<User> {
 
 	// TYPE:
 	private final static class SingletonHolder {
@@ -42,7 +40,7 @@ public class Users extends Entity<User> {
 	
 	private Users() {
 		super("users");
-		firstName = addProperty(String.class, "firstName", "first_name", Constraint.MANDATORY);
+		firstName = addProperty(String.class, "firstName", "first_name");
 		lastName = addProperty(String.class, "lastName", "last_name");
 		organization = addProperty(String.class, "organization", "organization");
 		status = addProperty(Status.class, "status", "status", Constraint.MANDATORY);

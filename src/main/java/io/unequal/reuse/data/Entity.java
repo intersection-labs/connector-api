@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.reflect.ParameterizedType;
 import io.unequal.reuse.data.Property.Constraint;
@@ -18,7 +19,6 @@ import io.unequal.reuse.util.ImmutableList;
 import io.unequal.reuse.util.ImmutableMap;
 import io.unequal.reuse.util.IntegrityException;
 import io.unequal.reuse.util.Strings;
-
 import static io.unequal.reuse.util.Util.*;
 
 
@@ -35,7 +35,6 @@ public abstract class Entity<I extends Instance<?>> {
 	private final List<Property<?>> _propertyList;
 	private final List<Dependency> _dependencies;
 	private final Set<UniqueConstraint> _uConstraints;
-	private boolean _naturalKeyAdded;
 	private Database _db;
 	// Data management:
 	private String _insertSql;
@@ -53,12 +52,10 @@ public abstract class Entity<I extends Instance<?>> {
 		_propertyList = new ArrayList<>();
 		_dependencies = new ArrayList<>();
 		_uConstraints = new HashSet<>();
-		// TODO remove
-		_naturalKeyAdded = false;
 		// Common properties:
 		id = addProperty(Long.class, "id", "id", Constraint.MANDATORY, Constraint.AUTO_GENERATED, Constraint.READ_ONLY);
 		timeCreated = addProperty(Date.class, "timeCreated", "time_created", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);
-		timeUpdated = addProperty(Date.class, "timeUpdated", "time_created", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);		
+		timeUpdated = addProperty(Date.class, "timeUpdated", "time_updated", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);		
 		// Data management:
 		_insertSql = null;
 		_findById = null;
@@ -158,11 +155,11 @@ public abstract class Entity<I extends Instance<?>> {
 	// For Database:
 	@SuppressWarnings("unchecked")
 	void loadInto(Database db) {
+		getLogger().log(info("loading entity '{}'", getName()));
 		if(_db != null) {
 			throw new IllegalStateException(x("entity '{}' has already been loaded into another database", getName()));
 		}
 		_db = db;
-		getLogger().log(info("loading entity {}", getName()));
 		StringBuilder sb = new StringBuilder();
 		sb.append("INSERT INTO ").append(getTableName()).append("(");
 		// Load all related entities and dependencies:
@@ -207,6 +204,11 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 		_unique(key);
 	}
+	
+	// For Connection:
+	List<Property<?>> propertyList() {
+		return new ImmutableList<>(_propertyList);
+	}
 
 	// Data management methods:	
 	public void insert(I i, Connection c) {
@@ -216,13 +218,14 @@ public abstract class Entity<I extends Instance<?>> {
 		if(i.persisted()) {
 			throw new IllegalArgumentException("entity has already been persisted");
 		}
-		Object[] params = new Object[_propertyList.size()];
+		Object[] args = new Object[_propertyList.size()-1];
 		// Check properties:
 		// Note: the following checks are already done on Instance.setValue:
 		// Data type, format, read-only, auto-generated. Mandatory is also checked
 		// on Instance.setValue, but we need to process omitted properties.
 		Iterator<Property<?>> it = _propertyList.iterator();
-		for(int j=0; it.hasNext(); j++) {
+		int j=0;
+		while(it.hasNext()) {
 			Property<?> prop = it.next();
 			// Skip the primary key:
 			if(prop == id) {
@@ -245,12 +248,12 @@ public abstract class Entity<I extends Instance<?>> {
 				}
 			}
 			// All checks ok:
-			params[j] = value;
+			args[j++] = prop.toPrimitive(value);
 		}
 		// Check unique constraints:
 		_checkUniqueConstraintsFor(i, c);
 		// Insert instance:
-		Long id = c.insert(_insertSql, params);
+		Long id = c.insert(_insertSql, args);
 		i.setPrimaryKey(id);
 		i.flush();
 	}

@@ -20,6 +20,7 @@ public abstract class Model {
 		if(_entities.containsKey(e.getName())) {
 			throw new IllegalArgumentException(x("entity '{}' has already been registered", e.getClass().getSimpleName()));
 		}
+		_entities.put(e.getName(), e);
 	}
 	
 	// For Database:

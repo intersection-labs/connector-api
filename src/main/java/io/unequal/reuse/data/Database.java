@@ -1,5 +1,6 @@
 package io.unequal.reuse.data;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.HashMap;
 import java.sql.SQLException;
 import java.beans.PropertyVetoException;
@@ -40,6 +41,7 @@ public class Database {
 
 	public void load(Model model) {
 		Checker.checkNull(model);
+		// Cache entities:
 		for(Entity<?> e : model.entities()) {
 			Entity<?> tmp = _byName.get(e.getClass().getSimpleName());
 			if(tmp != null) {
@@ -50,6 +52,9 @@ public class Database {
 				throw new IntegrityException();
 			}
 			_byInstance.put(e.getInstanceClass(), e);
+		}
+		// Load them:
+		for(Entity<?> e : model.entities()) {
 			e.loadInto(this);
 		}
 	}

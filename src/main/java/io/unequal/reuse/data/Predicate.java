@@ -52,7 +52,7 @@ public class Predicate {
 				sb.append("?");
 			}
 			else {
-				sb.append("'").append(value).append("'");
+				sb.append("'").append(_property.toPrimitive(value)).append("'");
 			}
 		}
 		_sql = sb.toString();

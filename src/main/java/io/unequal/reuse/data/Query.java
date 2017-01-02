@@ -39,9 +39,6 @@ public class Query<I extends Instance<?>> {
 			if(p.getProperty().getEntity() != _entity) {
 				throw new IllegalArgumentException(x("property '{}' cannot be used to query entity '{}'", p.getProperty().getFullName(), _entity.getName()));
 			}
-			if(p.getProperty() == _entity.id) {
-				throw new IllegalArgumentException("cannot use 'id' property in multiple result query. Use findSingle instead.");
-			}
 			_predicates.add(p);
 			if(p.isParameter()) {
 				_params.add(p.getProperty());
@@ -124,6 +121,10 @@ public class Query<I extends Instance<?>> {
 		return sql();
 	}
 
+	// For Connection:
+	Entity<I> entity() {
+		return _entity;
+	}
 	
 	// For Connection:
 	Class<I> type() {
