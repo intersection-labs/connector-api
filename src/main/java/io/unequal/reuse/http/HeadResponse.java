@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 
-public class HeadResponse extends HttpServletResponseWrapper {
+class HeadResponse extends HttpServletResponseWrapper {
 
 	private final NoOutputStream _stream = new NoOutputStream();
     private PrintWriter _writer;

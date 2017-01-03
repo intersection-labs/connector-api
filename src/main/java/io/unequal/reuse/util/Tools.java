@@ -13,8 +13,8 @@ import static io.unequal.reuse.util.Util.*;
 public class Tools {
 
 	public static boolean contains(Collection<?> c, Object o, Comparator<Object> comparator) {
-		Checker.checkNull(c);
-		Checker.checkNull(comparator);
+		Checker.nil(c);
+		Checker.nil(comparator);
 		for(Object element : c) {
 			if(comparator.compare(element, o) == 0) {
 				return true;
@@ -23,18 +23,18 @@ public class Tools {
 		return false;
 	}
 	
-	public static Locale getLocale(String locale) {
-		Checker.checkEmpty(locale);
+	public static Locale locale(String locale) {
+		Checker.empty(locale);
 		String[] array = locale.split("[_]");
 		if(array.length != 2) {
 			throw new IllegalArgumentException("wrong format for locale: "+locale);
 		}
-		return getLocale(array[0], array[1]);
+		return locale(array[0], array[1]);
 	}
 
-	public static Locale getLocale(String language, String country) {
-		Checker.checkEmpty(language);
-		Checker.checkEmpty(country);
+	public static Locale locale(String language, String country) {
+		Checker.empty(language);
+		Checker.empty(country);
 		Locale l = new Locale(language, country);
 		if(Arrays.indexOf(l, Locale.getAvailableLocales()) == -1) {
 			throw new IllegalArgumentException("locale '"+language+"_"+country+"' is not supported");
@@ -43,7 +43,7 @@ public class Tools {
 	}
 
 	public static byte[] parseInetAddress(String address) {
-		Checker.checkEmpty(address);
+		Checker.empty(address);
 		String[] array = address.split("\\.");
 		if(array.length != 4) {
 			throw new IllegalArgumentException("illegal IP address: "+address);
@@ -65,7 +65,7 @@ public class Tools {
 	}
 	
 	public static void printRequestParameters(HttpServletRequest req, PrintWriter out) {
-		Checker.checkNull(req);
+		Checker.nil(req);
 		if(out == null) {
 			out = new PrintWriter(System.out);
 		}

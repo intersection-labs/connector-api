@@ -33,10 +33,10 @@ public class Main {
 	public void test() {
 		// TODO delete existing
 		
-		User ripley = new User().setFirstName("Ellen").setLastName("Ripley").setOrganization("Weyland-Yutani Corporation");
+		User ripley = new User().firstName("Ellen").lastName("Ripley").organization("Weyland-Yutani Corporation");
 		try {
 			out.print("Testing mandatory contraints... ");
-			ripley.setStatus(null);
+			ripley.status(null);
 			fail();
 		}
 		catch(MandatoryConstraintException mce) {
@@ -61,9 +61,9 @@ public class Main {
 	}
 
 	private User _addUser(String firstName, String lastName, String pEmail, String wEmail, boolean recreate) {
-		Checker.checkEmpty(firstName);
-		Checker.checkEmpty(lastName);
-		Checker.checkEmpty(pEmail);
+		Checker.empty(firstName);
+		Checker.empty(lastName);
+		Checker.empty(pEmail);
 		try(Connection c = _db.connect()) {
 			User user = Users.get().withEmail(pEmail, c);
 			if(recreate) {
@@ -75,7 +75,7 @@ public class Main {
 			}
 			if(user == null) {
 				out.print(recreate ? "Re-creating "+firstName+"... " : "Creating "+firstName+"... ");
-				user = new User().setFirstName(firstName).setLastName(lastName).setStatus(Users.Status.REGISTERED);
+				user = new User().firstName(firstName).lastName(lastName).status(Users.Status.REGISTERED);
 				Users.get().insert(user, c);
 				UserField pEmailField = new UserField(user, FieldType.EMAIL, "Personal email", pEmail);
 				UserFields.get().insert(pEmailField, c);

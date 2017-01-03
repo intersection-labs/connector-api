@@ -50,14 +50,14 @@ class TypeMappings {
 		_register(String.class, new TypeMapping<String,String>(String.class, String.class, Types.LONGVARCHAR) {
 			public String wrap(Object arg, Class<?> type, Connection c) {
 				String s = (String)arg;
-				if(Strings.isEmpty(s)) {
+				if(Strings.empty(s)) {
 					return null;
 				}
 				return s;
 			}
 			public String unwrap(Object arg) {
 				String s = (String)arg;
-				if(Strings.isEmpty(s)) {
+				if(Strings.empty(s)) {
 					return null;
 				}
 				return s;
@@ -79,16 +79,16 @@ class TypeMappings {
 				return Constant.valueOf(type, (Integer)arg);
 			}
 			public Object unwrap(Object arg) {
-				return ((Constant)arg).getCode();
+				return ((Constant)arg).code();
 			}
 		});
 		// Instance:
 		_register(Instance.class, new TypeMapping<Instance,Long>(Instance.class, Long.class, Types.BIGINT) {
 			public Instance wrap(Object arg, Class<?> type, Connection c) {
-				return c.database().getEntityForInstance(type).find((Long)arg, c);
+				return c.database().entityForInstance(type).find((Long)arg, c);
 			}
 			public Object unwrap(Object arg) {
-				return ((Instance)arg).getId();
+				return ((Instance)arg).id();
 			}
 		});
 	}

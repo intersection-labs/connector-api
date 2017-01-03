@@ -9,7 +9,7 @@ public class ImmutableCollection<T> extends AbstractCollection<T> {
 	private final Collection<T> _source;
 	
 	public ImmutableCollection(Collection<T> source) {
-		Checker.checkNull(source);
+		Checker.nil(source);
 		_source = source;
 	}
 

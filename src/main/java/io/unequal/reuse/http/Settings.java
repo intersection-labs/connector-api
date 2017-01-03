@@ -15,7 +15,7 @@ public class Settings {
 	}
 
 	public void port(int port) {
-		Checker.checkMinValue(port, 0);
+		Checker.min(port, 0);
 		_port = port;
 	}
 	
@@ -24,7 +24,7 @@ public class Settings {
 	}
 	
 	public void staticFiles(String staticFiles) {
-		Checker.checkEmpty(staticFiles);
+		Checker.empty(staticFiles);
 		_staticFiles = staticFiles;
 	}
 	

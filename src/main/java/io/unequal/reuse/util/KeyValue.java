@@ -7,20 +7,20 @@ public class KeyValue<T> {
 	private T _value;
 	
 	public KeyValue(String name, T value) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		_name = name;
 		_value = value;
 	}
 	
-	public String getName() {
+	public String name() {
 		return _name;
 	}
 	
-	public T getValue() {
+	public T value() {
 		return _value;
 	}
 	
-	public KeyValue<T> setValue(T value) {
+	public KeyValue<T> value(T value) {
 		_value = value;
 		return this;
 	}

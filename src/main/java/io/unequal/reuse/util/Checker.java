@@ -9,103 +9,103 @@ import java.util.regex.Matcher;
 
 public class Checker {
 
-	public static Object checkNull(Object arg) {
+	public static Object nil(Object arg) {
 		if(arg == null) {
 			throw new IllegalArgumentException("null argument");
 		}
 		return arg;
 	}
 	
-	public static String checkEmpty(String arg) {
-		checkNull(arg);
+	public static String empty(String arg) {
+		nil(arg);
 		if(arg.equals(Strings.EMPTY)) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 	
-	public static Object[] checkEmpty(Object[] arg) {
-		checkNull(arg);
+	public static Object[] empty(Object[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static char[] checkEmpty(char[] arg) {
-		checkNull(arg);
+	public static char[] empty(char[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static byte[] checkEmpty(byte[] arg) {
-		checkNull(arg);
+	public static byte[] empty(byte[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 	
-	public static short[] checkEmpty(short[] arg) {
-		checkNull(arg);
+	public static short[] empty(short[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static int[] checkEmpty(int[] arg) {
-		checkNull(arg);
+	public static int[] empty(int[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static long[] checkEmpty(long[] arg) {
-		checkNull(arg);
+	public static long[] empty(long[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static float[] checkEmpty(float[] arg) {
-		checkNull(arg);
+	public static float[] empty(float[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static double[] checkEmpty(double[] arg) {
-		checkNull(arg);
+	public static double[] empty(double[] arg) {
+		nil(arg);
 		if(arg.length == 0) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static Collection<?> checkEmpty(Collection<?> arg) {
-		checkNull(arg);
+	public static Collection<?> empty(Collection<?> arg) {
+		nil(arg);
 		if(arg.isEmpty()) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static Map<?,?> checkEmpty(Map<?,?> arg) {
-		checkNull(arg);
+	public static Map<?,?> empty(Map<?,?> arg) {
+		nil(arg);
 		if(arg.isEmpty()) {
 			throw new IllegalArgumentException("empty argument");
 		}
 		return arg;
 	}
 
-	public static Object[] checkNullElements(Object[] array) {
-		checkNull(array);
+	public static Object[] hasNull(Object[] array) {
+		nil(array);
 		for(int i=0; i<array.length; i++) {
 			if(array[i] == null) {
 				throw new IllegalArgumentException("position "+i+" is null");
@@ -114,18 +114,18 @@ public class Checker {
 		return array;
 	}
 
-	public static String[] checkEmptyElements(String[] array) {
-		checkNull(array);
+	public static String[] hasEmpty(String[] array) {
+		nil(array);
 		for(int i=0; i<array.length; i++) {
-			if(Strings.isEmpty(array[i])) {
+			if(Strings.empty(array[i])) {
 				throw new IllegalArgumentException(Strings.expand("position {} is {}", i, (array[i]==null ? "null" : "empty")));
 			}
 		}
 		return array;
 	}
 
-	public static Object[] checkDuplicateElements(Object[] array) {
-		checkNull(array);
+	public static Object[] hasDuplicates(Object[] array) {
+		nil(array);
 		Map<Object,Integer> map = new HashMap<>();
 		for(int i=0; i<array.length; i++) {
 			Integer pos = map.get(array[i]);			
@@ -137,8 +137,8 @@ public class Checker {
 		return array;
 	}
 
-	public static Object[] checkLength(Object[] array, int length) {
-		checkNull(array);
+	public static Object[] length(Object[] array, int length) {
+		nil(array);
 		if(array.length != length) {
 			throw new IllegalArgumentException(Strings.expand("illegal length {} (expected {})", array.length, length));
 		}
@@ -147,9 +147,9 @@ public class Checker {
 		}
 	}
 
-	public static Object[] checkMatchingLength(Object[] array1, Object[] array2) {
-		checkNull(array1);
-		checkNull(array2);
+	public static Object[] matchingLength(Object[] array1, Object[] array2) {
+		nil(array1);
+		nil(array2);
 		if(array1.length != array2.length) {
 			throw new IllegalArgumentException(Strings.expand("expected {} elements, found {}", array1.length, array2.length));
 		}
@@ -158,35 +158,21 @@ public class Checker {
 		}
 	}
 
-	public static int checkIndex(int index) {
-		if(index < 0) {
-			throw new IllegalArgumentException(Strings.expand("negative index: {}", index));
-		}
-		return index;
-	}
-	
-	public static long checkMaxValue(long value, long max) {
+	public static long max(long value, long max) {
 		if(value > max) {
 			throw new IllegalArgumentException("illegal value "+value);
 		}
 		return value;
 	}
 
-	public static long checkMinValue(long value, long min) {
+	public static long min(long value, long min) {
 		if(value < min) {
 			throw new IllegalArgumentException("illegal value "+value);
 		}
 		return value;
 	}
 
-	public static long checkIllegalValue(long value, long illegal) {
-		if(value == illegal) {
-			throw new IllegalArgumentException("illegal value "+value);
-		}
-		return value;
-	}
-
-	public static Object checkIllegalValue(Object value, Object ... allowed) {
+	public static Object in(Object value, Object ... allowed) {
 		for(Object o : allowed) {
 			if(value.equals(o)) {
 				return value;
@@ -201,8 +187,8 @@ public class Checker {
 	private final static Pattern _iPatternDot  = Pattern.compile("([.]|[a-zA-Z0-9_])*");
 	private final static Pattern _tiPatternDot = Pattern.compile("([.]|[a-zA-Z0-9_-])*");
 
-	public static String checkCodeIdentifier(String name, boolean acceptDot) {
-		checkEmpty(name);
+	public static String codeIdentifier(String name, boolean acceptDot) {
+		empty(name);
 		if(acceptDot) {
 			if(name.contains("..")) {
 				throw new IllegalArgumentException("identifier uses dot characters in sequence");
@@ -215,12 +201,12 @@ public class Checker {
 		return name;
 	}
 	
-	public static String checkCodeIdentifier(String name) {
-		return checkCodeIdentifier(name, false);
+	public static String codeIdentifier(String name) {
+		return codeIdentifier(name, false);
 	}
 	
-	public static String checkTextIdentifier(String name, boolean acceptDot) {
-		checkEmpty(name);
+	public static String textIdentifier(String name, boolean acceptDot) {
+		empty(name);
 		// Check first letter:
 		if(Character.isDigit(name.charAt(0))) {
 			throw new IllegalArgumentException("identifier must start with a letter or _ and starts with '"+name.charAt(0)+"'");
@@ -237,8 +223,8 @@ public class Checker {
 		return name;
 	}
 
-	public static String checkTextIdentifier(String name) {
-		return checkTextIdentifier(name, false);
+	public static String textIdentifier(String name) {
+		return textIdentifier(name, false);
 	}
 
 	private static void _checkIdentifier(String name, Matcher m) {
@@ -249,7 +235,7 @@ public class Checker {
 		if(!m.matches()) {
 			// show the illegal characters found:
 			String illegalChars = m.replaceAll("");
-			illegalChars = Strings.eliminateRepeatedChars(illegalChars);
+			illegalChars = Strings.removeRepeatedChars(illegalChars);
 			throw new IllegalArgumentException("identifier has illegal characters '"+illegalChars+"'");
 		}
 	}

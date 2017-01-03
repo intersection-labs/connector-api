@@ -7,7 +7,7 @@ class HtmlFormatter {
 	public static final int _TAB_SIZE = 4;
 
 	public static String format(String source) {
-		Checker.checkNull(source);
+		Checker.nil(source);
 		StringBuilder sb = new StringBuilder();
 		int nbspCount = 0;
 		for(int i=0; i<source.length(); i++) {

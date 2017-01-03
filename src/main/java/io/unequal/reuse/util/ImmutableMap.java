@@ -9,7 +9,7 @@ public class ImmutableMap<K,V> extends AbstractMap<K,V> {
 	private final Map<K,V> _map;
 	
 	public ImmutableMap(Map<K,V> map) {
-		Checker.checkNull(map);
+		Checker.nil(map);
 		_map = map;
 	}
 

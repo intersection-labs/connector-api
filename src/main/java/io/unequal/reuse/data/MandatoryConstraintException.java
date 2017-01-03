@@ -8,7 +8,7 @@ package io.unequal.reuse.data;
 public class MandatoryConstraintException extends ConstraintException {
 
 	MandatoryConstraintException(Property<?> prop) {
-		super("mandatory constraint: property '"+prop.getName()+"' cannot be set to NULL", prop, null);
+		super("mandatory constraint: property '"+prop.name()+"' cannot be set to NULL", prop, null);
 	}
 
 	private static final long serialVersionUID = 1L;

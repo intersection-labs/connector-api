@@ -13,8 +13,8 @@ public abstract class Constant {
 	// TYPE:
 	private static final Map<Class<?>,Map<Integer,Constant>> _register = new HashMap<>();
 
-	public static ImmutableCollection<Constant> getValuesFor(Class<?> c) {
-		Checker.checkNull(c);
+	public static ImmutableCollection<Constant> values(Class<?> c) {
+		Checker.nil(c);
 		return new ImmutableCollection<Constant>(_register.get(c).values());
 	}
 	
@@ -36,10 +36,10 @@ public abstract class Constant {
 			constants = new HashMap<>();
 			_register.put(c.getClass(), constants);
 		}
-		if(constants.containsKey(c.getCode())) {
-			throw new IllegalArgumentException(Util.x("constant with code '{}' already exists", c.getCode()));
+		if(constants.containsKey(c.code())) {
+			throw new IllegalArgumentException(Util.x("constant with code '{}' already exists", c.code()));
 		}
-		constants.put(c.getCode(), c);
+		constants.put(c.code(), c);
 	}
 	
 	
@@ -53,16 +53,16 @@ public abstract class Constant {
 		_register(this);
 	}
 	
-	public int getCode() {
+	public int code() {
 		return _code;
 	}
 	
-	public String getDescription() {
+	public String description() {
 		return _description;
 	}
 	
 	public String toString() {
-		return Util.x("{}: {}", getCode(), getDescription());
+		return Util.x("{}: {}", code(), description());
 	}
 
 	public boolean equals(Object o) {

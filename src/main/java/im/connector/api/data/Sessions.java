@@ -48,22 +48,22 @@ public class Sessions extends Entity<Session> {
 	
 	private Sessions() {
 		super("sessions");
-		uuid = addProperty(String.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
-		user = addProperty(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY);
-		timeLastAccessed = addProperty(Timestamp.class, "timeLastAccessed", "time_last_accessed");
-		timeClosed = addProperty(Timestamp.class, "timeClosed", "time_closed");
-		closeReason = addProperty(String.class, "closeReason", "close_reason");
+		uuid = property(String.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
+		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY);
+		timeLastAccessed = property(Timestamp.class, "timeLastAccessed", "time_last_accessed");
+		timeClosed = property(Timestamp.class, "timeClosed", "time_closed");
+		closeReason = property(String.class, "closeReason", "close_reason");
 	}
 
-	public Property<?>[] getNaturalKeyProperties() {
+	public Property<?>[] naturalKey() {
 		return new Property<?>[] { uuid };
 	}
 
 	public Session find(String uuid, Connection c) {
-		Checker.checkNull(uuid);
-		Checker.checkNull(c);
+		Checker.nil(uuid);
+		Checker.nil(c);
 		if(_uuid == null) {
-			_uuid = query().where(this.uuid.isEqualTo());
+			_uuid = query().where(this.uuid.equalTo());
 		}
 		return c.run(_uuid, uuid).single();
 	}
@@ -115,7 +115,7 @@ public class Sessions extends Entity<Session> {
     	resp.addCookie(sessionCookie);
 	}
 	
-	public void removeSessionCookie(Response resp) {
+	public void removeCookie(Response resp) {
 		resp.removeCookie(COOKIE_NAME, COOKIE_PATH, App.domain());
 	}
 }

@@ -8,10 +8,10 @@ import java.lang.reflect.InvocationTargetException;
 public class Reflection {
 
 	@SuppressWarnings("unchecked")
-	public static <T> T createObject(Class<T> c, Class<?>[] params, Object[] args) {
-		Checker.checkNull(c);
-		Checker.checkNullElements(params);
-		Checker.checkNull(args);
+	public static <T> T object(Class<T> c, Class<?>[] params, Object[] args) {
+		Checker.nil(c);
+		Checker.hasNull(params);
+		Checker.nil(args);
 		// Check if the class is an interface:
 		int modifiers = c.getModifiers();
 		if(Modifier.isInterface(modifiers)) {
@@ -71,22 +71,22 @@ public class Reflection {
 		}
 	}
 
-	public static <T> T createObject(Class<T> c, Object ... args) {
-		Checker.checkNull(c);
-		Checker.checkNullElements(args);
+	public static <T> T object(Class<T> c, Object ... args) {
+		Checker.nil(c);
+		Checker.hasNull(args);
 		Class<?>[] params = new Class[args.length];
 		for(int i=0; i<params.length; i++) {
 			params[i] = args[i].getClass();
 		}
-		return createObject(c, params, args);
+		return object(c, params, args);
 	}
 
-	public static <T> T createObject(Class<T> c) {
-		return createObject(c, new Class[0], new Object[0]);
+	public static <T> T object(Class<T> c) {
+		return object(c, new Class[0], new Object[0]);
 	}
 	
 	public static Class<?> load(boolean lenient, String className) {
-		Checker.checkEmpty(className);
+		Checker.empty(className);
 		try {
 			return Class.forName(className);
 		}
@@ -104,9 +104,9 @@ public class Reflection {
 		return load(false, className);
 	}
 	
-	public static Method getDeclaredMethod(boolean lenient, Class<?> c, String name, Class<?> ... parameterTypes) {
-		Checker.checkNull(c);
-		Checker.checkEmpty(name);
+	public static Method declaredMethod(boolean lenient, Class<?> c, String name, Class<?> ... parameterTypes) {
+		Checker.nil(c);
+		Checker.empty(name);
 		try {
 			return c.getDeclaredMethod(name, parameterTypes);
 		}
@@ -118,13 +118,13 @@ public class Reflection {
 		}
 	}
 
-	public static Method getDeclaredMethod(Class<?> c, String name, Class<?> ... parameterTypes) {
-		return getDeclaredMethod(false, c, name, parameterTypes);
+	public static Method declaredMethod(Class<?> c, String name, Class<?> ... parameterTypes) {
+		return declaredMethod(false, c, name, parameterTypes);
 	}
 
-	public static Method getMethod(boolean lenient, Class<?> c, String name, Class<?> ... parameterTypes) {
-		Checker.checkNull(c);
-		Checker.checkEmpty(name);
+	public static Method method(boolean lenient, Class<?> c, String name, Class<?> ... parameterTypes) {
+		Checker.nil(c);
+		Checker.empty(name);
 		try {
 			return c.getMethod(name, parameterTypes);
 		}
@@ -136,13 +136,13 @@ public class Reflection {
 		}
 	}
 
-	public static Method getMethod(Class<?> c, String name, Class<?> ... parameterTypes) {
-		return getMethod(false, c, name, parameterTypes);
+	public static Method method(Class<?> c, String name, Class<?> ... parameterTypes) {
+		return method(false, c, name, parameterTypes);
 	}
 	
 	public static Object invoke(Method toCall, Object target, Object ... params) {
-		Checker.checkNull(toCall);
-		Checker.checkNull(target);
+		Checker.nil(toCall);
+		Checker.nil(target);
 		try {
 			return toCall.invoke(target, params);
 		}
@@ -154,9 +154,9 @@ public class Reflection {
 		}
 	}
 
-	public static Object readField(Class<?> c, String fieldName, Object o) {
-		Checker.checkNull(c);
-		Checker.checkEmpty(fieldName);
+	public static Object fieldValue(Class<?> c, String fieldName, Object o) {
+		Checker.nil(c);
+		Checker.empty(fieldName);
 		try {
 			return c.getField(fieldName).get(o);
 		}

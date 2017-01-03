@@ -7,7 +7,7 @@ public class ImmutableIterator<T> implements Iterator<T> {
 	private final Iterator<T> _it;
 
 	public ImmutableIterator(Iterator<T> it) {
-		Checker.checkNull(it);
+		Checker.nil(it);
 		this._it = it;
 	}
 

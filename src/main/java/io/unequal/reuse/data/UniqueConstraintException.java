@@ -5,7 +5,7 @@ import static io.unequal.reuse.util.Util.*;
 public class UniqueConstraintException extends ConstraintException {
 
 	UniqueConstraintException(Property<?> prop, Object value) {
-		super(x("unique constraint: entity with '{}' = '{}' already exists", prop.getName(), value), prop, value);
+		super(x("unique constraint: entity with '{}' = '{}' already exists", prop.name(), value), prop, value);
 	}
 
 	UniqueConstraintException(UniqueConstraint uc) {

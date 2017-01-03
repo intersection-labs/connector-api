@@ -12,16 +12,16 @@ public class Dependency {
 		_foreignKey = foreignKey;
 	}
 	
-	public Entity<Instance<?>> getEntity() {
+	public Entity<Instance<?>> entity() {
 		return _entity;
 	}
 
-	public Property<?> getForeignKey() {
+	public Property<?> foreignKey() {
 		return _foreignKey;
 	}
 
 	public String toString() {
-		return "Dependency: "+_foreignKey.getFullName();
+		return "Dependency: "+_foreignKey.fullName();
 	}
 	
 	//public QueryResult<Instance<?>> findInstancesRelatedTo(Instance<?> i) {

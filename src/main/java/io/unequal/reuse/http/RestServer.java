@@ -20,7 +20,7 @@ public class RestServer {
 	private final ServletContextHandler _root;
 
 	public RestServer(Settings settings) {
-		Checker.checkNull(settings);
+		Checker.nil(settings);
 		_settings = settings;
 		_server = new Server(_settings.port());
 		_root = new ServletContextHandler(ServletContextHandler.NO_SECURITY | ServletContextHandler.NO_SESSIONS);
@@ -38,9 +38,9 @@ public class RestServer {
 	}
 
 	public void endpoint(Endpoint endpoint, String ... routes) {
-		Checker.checkNull(endpoint);
-		Checker.checkEmpty(routes);
-		Checker.checkNullElements(routes);
+		Checker.nil(endpoint);
+		Checker.empty(routes);
+		Checker.hasNull(routes);
 		if(_server.isRunning()) {
 			throw new IllegalStateException("server is already running");
 		}

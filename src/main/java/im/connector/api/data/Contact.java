@@ -7,16 +7,17 @@ import java.io.IOException;
 import java.util.Iterator;
 import io.unequal.reuse.data.ActiveInstance;
 import io.unequal.reuse.data.QueryResult;
+import io.unequal.reuse.data.Connection;
 import im.connector.api.data.Contacts.Status;
 
 
 public class Contact extends ActiveInstance<Contacts> implements Person<ContactField> {
 
 	public Contact(User owner, boolean isMe) {
-		setValue(getEntity().owner, owner);
-		setValue(getEntity().me, isMe);
+		set(entity().owner, owner);
+		set(entity().me, isMe);
 		if(isMe) {
-			copyFrom(owner);
+			copy(owner);
 		}
 	}
 
@@ -28,62 +29,62 @@ public class Contact extends ActiveInstance<Contacts> implements Person<ContactF
 	}
 
 	// Impl:
-	public Contacts getEntity() { return Contacts.get(); }
-	public String describe() { return Common.getDescription(this); }
+	public Contacts entity() { return Contacts.get(); }
+	public String describe(Connection c) { return Common.description(this); }
 
 	// Getters and setters:
-	public User findOwner() { return getValue(getEntity().owner); }
-	public String getFirstName() { return getValue(getEntity().firstName); }
-	public Contact setFirstName(String firstName) { setValue(getEntity().firstName, firstName); return this; }
-	public String getLastName() { return getValue(getEntity().lastName); }
-	public Contact setLastName(String lastName) { setValue(getEntity().lastName, lastName); return this; }
-	public String getOrganization() { return getValue(getEntity().organization); }
-	public Contact setOrganization(String org) { setValue(getEntity().organization, org); return this; }
-	public Status getStatus() { return getValue(getEntity().status); }
-	public Contact setStatus(Status value) { setValue(getEntity().status, value); return this; }
-	public User findConnection() { return getValue(getEntity().connection); }
-	public Contact setConnection(User user) { setValue(getEntity().connection, user); return this; }
+	public User owner(Connection c) { return get(entity().owner, c); }
+	public String firstName() { return get(entity().firstName); }
+	public Contact firstName(String firstName) { set(entity().firstName, firstName); return this; }
+	public String lastName() { return get(entity().lastName); }
+	public Contact lastName(String lastName) { set(entity().lastName, lastName); return this; }
+	public String organization() { return get(entity().organization); }
+	public Contact organization(String org) { set(entity().organization, org); return this; }
+	public Status status() { return get(entity().status); }
+	public Contact status(Status value) { set(entity().status, value); return this; }
+	public User connection(Connection c) { return get(entity().connection, c); }
+	public Contact connection(User user) { set(entity().connection, user); return this; }
 	
 
 	// Custom methods:
-	public String getFullName() {
-		return Common.getFullName(this);
+	public String fullName() {
+		return Common.fullName(this);
 	}
 
-	public String getPhotoURL() throws IOException {
+	public String photoUrl() throws IOException {
 		Iterator<ContactMapping> it = findMappings().iterate();
 		while(it.hasNext()) {
 			ContactMapping cm = it.next();
-			if(cm.getPhotoURL() != null) {
+			if(cm.photoUrl() != null) {
 				return cm.getAuthorizedPhotoURL();
 			}
 		}
 		return null;
 	}
 
-	public Contact copyFrom(Person<?> p) {
+	public Contact copy(Person<?> p) {
 		Common.copy(p, this);
 		return this;
 	}
 
 	public QueryResult<ContactField> findFields() {
 		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.isEqualTo(this), fields.active.isEqualTo(true));
+		return fields.findWhere(fields.contact.equalTo(this), fields.active.equalTo(true));
 	}
 
 	public QueryResult<ContactField> findEmails() {
 		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.isEqualTo(this), fields.type.isEqualTo(FieldType.EMAIL), fields.active.isEqualTo(true));
+		return fields.findWhere(fields.contact.equalTo(this), fields.type.equalTo(FieldType.EMAIL), fields.active.equalTo(true));
 	}
 
 	public QueryResult<ContactField> findPhoneNumbers() {
 		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.isEqualTo(this), fields.type.isEqualTo(FieldType.PHONE), fields.active.isEqualTo(true));
+		return fields.findWhere(fields.contact.equalTo(this), fields.type.equalTo(FieldType.PHONE), fields.active.equalTo(true));
 	}
 
 	public QueryResult<ContactField> findAddresses() {
 		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.isEqualTo(this), fields.type.isEqualTo(FieldType.ADDRESS), fields.active.isEqualTo(true));
+		return fields.findWhere(fields.contact.equalTo(this), fields.type.equalTo(FieldType.ADDRESS), fields.active.equalTo(true));
 	}
 
 	public ContactField findField(String value) {
@@ -96,11 +97,11 @@ public class Contact extends ActiveInstance<Contacts> implements Person<ContactF
 	
 	public QueryResult<ContactMapping> findMappings() {
 		ContactMappings cm = ContactMappings.get();
-		return cm.findWhere(cm.contact.isEqualTo(this));
+		return cm.findWhere(cm.contact.equalTo(this));
 	}
 	
 	private ContactField _findField(String value, boolean active) {
 		ContactFields fields = ContactFields.get();
-		return fields.findSingle(fields.contact.isEqualTo(this), fields.value.isEqualTo(value), fields.active.isEqualTo(active));
+		return fields.findSingle(fields.contact.equalTo(this), fields.value.equalTo(value), fields.active.equalTo(active));
 	}
 }

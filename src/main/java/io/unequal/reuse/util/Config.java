@@ -26,12 +26,12 @@ public class Config {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Object load(String name, Class<?> type) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		if(_values.containsKey(name)) {
 			throw new IllegalArgumentException(x("configuration property named '{}' has already been loaded", name));
 		}
 		if(!type.isEnum()) {
-			Checker.checkIllegalValue(type, Integer.class, Long.class, String.class, URL.class);
+			Checker.in(type, Integer.class, Long.class, String.class, URL.class);
 		}
 		String value = System.getenv(name);
 		name = name.toLowerCase();
@@ -68,7 +68,7 @@ public class Config {
 	}
 	
 	public Object get(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		return _values.get(name.toLowerCase());
 	}
 }

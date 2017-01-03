@@ -7,7 +7,7 @@ class AsciiFormatter {
 	private static String _REPLACEMENT_CHAR = "_";
 	
 	public static String format(String source) {
-		Checker.checkNull(source);
+		Checker.nil(source);
 		StringBuilder sb = new StringBuilder();
 		for(int i=0; i<source.length(); i++) {
 			// find special (switchable) character:
@@ -15,7 +15,7 @@ class AsciiFormatter {
 			if(s != null) {
 				sb.append(s);
 			}
-			else if(_isAcceptable(source.charAt(i))) {
+			else if(_acceptable(source.charAt(i))) {
 				sb.append(source.charAt(i));
 			}
 			else {
@@ -34,7 +34,7 @@ class AsciiFormatter {
 		return null;
 	}
 	
-	private static final boolean _isAcceptable(char c) {
+	private static final boolean _acceptable(char c) {
 		return Character.isLetterOrDigit(c) || _acceptableChars.indexOf(c)!=-1;
 	}
 

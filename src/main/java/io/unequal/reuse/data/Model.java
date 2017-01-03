@@ -16,11 +16,11 @@ public abstract class Model {
 	}
 	
 	protected void add(Entity<?> e) {
-		Checker.checkNull(e);
-		if(_entities.containsKey(e.getName())) {
+		Checker.nil(e);
+		if(_entities.containsKey(e.name())) {
 			throw new IllegalArgumentException(x("entity '{}' has already been registered", e.getClass().getSimpleName()));
 		}
-		_entities.put(e.getName(), e);
+		_entities.put(e.name(), e);
 	}
 	
 	// For Database:

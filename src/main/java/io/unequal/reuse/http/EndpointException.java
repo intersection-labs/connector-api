@@ -9,7 +9,7 @@ public abstract class EndpointException extends RuntimeException {
 	private final JsonObject _content;
 	
 	protected EndpointException(StatusCode code, JsonObject content, Object ... parameters) {
-		Checker.checkNull(code);
+		Checker.nil(code);
 		if(code == StatusCodes.OK) {
 			throw new IllegalArgumentException("status code OK cannot be used in an exception");
 		}
@@ -26,11 +26,11 @@ public abstract class EndpointException extends RuntimeException {
 		return _code.expand(_parameters);
 	}
 	
-	public final StatusCode getErrorCode() {
+	public final StatusCode errorCode() {
 		return _code;
 	}
 	
-	public final JsonObject getContent() {
+	public final JsonObject content() {
 		return _content;
 	}
 

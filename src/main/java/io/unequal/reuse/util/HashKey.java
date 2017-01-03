@@ -7,7 +7,7 @@ public class HashKey {
 	private final Object[] _keys;
 
 	public HashKey(Object ... keys) {
-		Checker.checkEmpty(keys);
+		Checker.empty(keys);
 		_keys = keys;
 	}
 	

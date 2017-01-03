@@ -20,8 +20,8 @@ class EndpointServlet extends HttpServlet {
 	public EndpointServlet(Endpoint e, Database db) {
 		_e = e;
 		_db = db;
-		_doesGet = Reflection.getDeclaredMethod(true, e.getClass(), "get", Request.class, Response.class) != null;
-		_doesPost = Reflection.getDeclaredMethod(true, e.getClass(), "post", Request.class, Response.class) != null;
+		_doesGet = Reflection.declaredMethod(true, e.getClass(), "get", Request.class, Response.class) != null;
+		_doesPost = Reflection.declaredMethod(true, e.getClass(), "post", Request.class, Response.class) != null;
 	}
 
 	public void doOptions(HttpServletRequest req, HttpServletResponse resp) throws IOException {

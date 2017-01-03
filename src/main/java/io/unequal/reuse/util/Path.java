@@ -5,7 +5,7 @@ public class Path {
 	final String _source;
 
 	public Path(String source) {
-		Checker.checkEmpty(source);
+		Checker.empty(source);
 		_source = source;
 	}
 

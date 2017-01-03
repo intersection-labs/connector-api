@@ -15,32 +15,32 @@ public class Session extends Instance<Sessions> {
 	}
 	
 	public Session(String uuid) {
-		this.setValue(getEntity().uuid, uuid);
+		this.set(entity().uuid, uuid);
 	}
 
 	// Impl:
-	public Sessions getEntity() { return Sessions.get(); }
+	public Sessions entity() { return Sessions.get(); }
 	public String describe() { return uuid().toString(); }
 
 	// Getters and setters:
-	public String uuid() { return getValue(getEntity().uuid); }
-	public User user(Connection c) { return getValue(getEntity().user, c); }
-	public Session user(User value) { setValue(getEntity().user, value); return this; }
-	public Timestamp timeLastAccessed() { return getValue(getEntity().timeLastAccessed); }
-	public Timestamp timeClosed() { return getValue(getEntity().timeClosed); }
-	public String closeReason() { return getValue(getEntity().closeReason); }
+	public String uuid() { return get(entity().uuid); }
+	public User user(Connection c) { return get(entity().user, c); }
+	public Session user(User value) { set(entity().user, value); return this; }
+	public Timestamp timeLastAccessed() { return get(entity().timeLastAccessed); }
+	public Timestamp timeClosed() { return get(entity().timeClosed); }
+	public String closeReason() { return get(entity().closeReason); }
 
 	// Custom methods:
 	public Session accessed() {
-		setValue(getEntity().timeLastAccessed, Timestamp.from(Instant.now()));
+		set(entity().timeLastAccessed, Timestamp.from(Instant.now()));
 		return this;
 	}
 
 	public Session close(String closeReason) {
-		setValue(getEntity().closeReason, closeReason);
+		set(entity().closeReason, closeReason);
 		Timestamp now = Timestamp.from(Instant.now());
-		setValue(getEntity().timeClosed, now);
-		setValue(getEntity().timeLastAccessed, now);
+		set(entity().timeClosed, now);
+		set(entity().timeLastAccessed, now);
 		return this;
 	}
 	

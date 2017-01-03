@@ -40,18 +40,18 @@ public class Database {
 	}
 
 	public void load(Model model) {
-		Checker.checkNull(model);
+		Checker.nil(model);
 		// Cache entities:
 		for(Entity<?> e : model.entities()) {
 			Entity<?> tmp = _byName.get(e.getClass().getSimpleName());
 			if(tmp != null) {
 				throw new IllegalArgumentException(x("entity '{}' has already been registered", e.getClass().getSimpleName()));
 			}
-			_byName.put(e.getName(), e);
-			if(_byInstance.containsKey(e.getInstanceClass())) {
+			_byName.put(e.name(), e);
+			if(_byInstance.containsKey(e.instanceClass())) {
 				throw new IntegrityException();
 			}
-			_byInstance.put(e.getInstanceClass(), e);
+			_byInstance.put(e.instanceClass(), e);
 		}
 		// Load them:
 		for(Entity<?> e : model.entities()) {
@@ -59,13 +59,13 @@ public class Database {
 		}
 	}
 
-	public Entity<?> getEntity(String name) {
-		Checker.checkEmpty(name);
+	public Entity<?> entity(String name) {
+		Checker.empty(name);
 		return _byName.get(name);
 	}
 
-	public Entity<?> getEntityForInstance(Class<?> c) {
-		Checker.checkNull(c);
+	public Entity<?> entityForInstance(Class<?> c) {
+		Checker.nil(c);
 		return _byInstance.get(c);
 	}
 

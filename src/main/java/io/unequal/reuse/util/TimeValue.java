@@ -13,7 +13,7 @@ public class TimeValue implements Cloneable, Comparable<TimeValue> {
 	}
 
 	public static long convert(long value, Measure initialMeasure, Measure finalMeasure) {
-		return new TimeValue(value, initialMeasure).getAs(finalMeasure);
+		return new TimeValue(value, initialMeasure).as(finalMeasure);
 	}
 
 	private final long _milliseconds;
@@ -23,13 +23,13 @@ public class TimeValue implements Cloneable, Comparable<TimeValue> {
 	}
 
 	public TimeValue(Date date) {
-		Checker.checkNull(date);
+		Checker.nil(date);
 		_milliseconds = date.getTime();
 	}
 	
 	public TimeValue(long value, Measure measure) {
-		Checker.checkMinValue(value, 0);
-		Checker.checkNull(measure);
+		Checker.min(value, 0);
+		Checker.nil(measure);
 		switch(measure) {
 			case MILLISECONDS:
 				_milliseconds = value;
@@ -52,7 +52,7 @@ public class TimeValue implements Cloneable, Comparable<TimeValue> {
 	}
 	
 	public TimeValue(String value) {
-		Checker.checkEmpty(value);
+		Checker.empty(value);
 		// Parse input String:
 		value = value.replaceAll(" ", "");
 		value = value.replaceAll("\t", "");
@@ -91,8 +91,8 @@ public class TimeValue implements Cloneable, Comparable<TimeValue> {
 		}
 	}
 
-	public long getAs(Measure measure) {
-		Checker.checkNull(measure);
+	public long as(Measure measure) {
+		Checker.nil(measure);
 		if(measure == Measure.MILLISECONDS) {
 			return _milliseconds;
 		}
@@ -114,23 +114,23 @@ public class TimeValue implements Cloneable, Comparable<TimeValue> {
 	}
 
 	public long days() {
-		return getAs(Measure.DAYS);
+		return as(Measure.DAYS);
 	}
 
 	public long hours() {
-		return getAs(Measure.HOURS);
+		return as(Measure.HOURS);
 	}
 
 	public long minutes() {
-		return getAs(Measure.MINUTES);
+		return as(Measure.MINUTES);
 	}
 
 	public long seconds() {
-		return getAs(Measure.SECONDS);
+		return as(Measure.SECONDS);
 	}
 
 	public long milliseconds() {
-		return getAs(Measure.MILLISECONDS);
+		return as(Measure.MILLISECONDS);
 	}
 
 	public TimeValue clone() {
@@ -163,7 +163,7 @@ public class TimeValue implements Cloneable, Comparable<TimeValue> {
 	}
 
 	public int compareTo(TimeValue t) {
-		Checker.checkNull(t);
+		Checker.nil(t);
 		long result = _milliseconds - t._milliseconds;
 		return result<0 ? -1 : 1;
 	}

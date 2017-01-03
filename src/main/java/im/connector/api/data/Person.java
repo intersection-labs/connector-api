@@ -5,13 +5,13 @@ import io.unequal.reuse.data.QueryResult;
 // TODO make this a superclass and merge with Common
 public interface Person<F extends Instance<?>> {
 
-	public String getFirstName();
-	public Instance<?> setFirstName(String firstName);
-	public String getLastName();
-	public Person<?> setLastName(String lastName);
-	public String getFullName();
-	public String getOrganization();
-	public Person<?> setOrganization(String org);
+	public String firstName();
+	public Instance<?> firstName(String firstName);
+	public String lastName();
+	public Person<?> lastName(String lastName);
+	public String fullName();
+	public String organization();
+	public Person<?> organization(String org);
 	/*
 	public QueryResult<F> findFields();
 	public QueryResult<F> findEmails();

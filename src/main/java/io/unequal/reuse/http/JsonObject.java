@@ -13,7 +13,7 @@ public class JsonObject {
 
 	// TYPE:
 	public static JsonObject parse(String s) {
-		Checker.checkEmpty(s);
+		Checker.empty(s);
 		try {
 			return new JsonObject((JSONObject)new JSONParser().parse(s));
 		}
@@ -44,7 +44,7 @@ public class JsonObject {
 
 	@SuppressWarnings("unchecked")
 	public JsonObject put(String name, Object value) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		if(value != null) {
 			if(value.getClass() == JsonObject.class) {
 				value = ((JsonObject)value)._source;
@@ -61,7 +61,7 @@ public class JsonObject {
 	}
 	
 	public Object remove(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		Object value = _source.remove(name);
 		if(value != null) {
 			if(value instanceof JSONObject) {
@@ -73,7 +73,7 @@ public class JsonObject {
 
 	@SuppressWarnings("unchecked")
 	public JsonObject addChild(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		JsonObject child = new JsonObject();
 		_source.put(name, child._source);
 		return child;
@@ -81,32 +81,32 @@ public class JsonObject {
 	
 	@SuppressWarnings("unchecked")
 	public <E> List<E> addChildListOf(String name, Class<E> type) {
-		Checker.checkEmpty(name);
-		Checker.checkNull(type);
+		Checker.empty(name);
+		Checker.nil(type);
 		JSONArray array = new JSONArray();
 		_source.put(name, array);		
 		return new JsonList<E>(array, type);
 	}
 		
 	public String getString(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		return (String)_source.get(name);
 	}
 	
 	public Long getLong(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		return (Long)_source.get(name);
 	}
 
 	public JsonObject getJsonObject(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		JSONObject json = (JSONObject)_source.get(name);
 		return new JsonObject(json);
 	}
 	
 	public <E> List<E> getListOf(String name, Class<E> type) {
-		Checker.checkEmpty(name);
-		Checker.checkNull(type);
+		Checker.empty(name);
+		Checker.nil(type);
 		final JSONArray array = (JSONArray)_source.get(name);
 		if(array == null) {
 			return null;
@@ -115,7 +115,7 @@ public class JsonObject {
 	}
 
 	public void write(Writer out, boolean prettyPrint) throws IOException {
-		Checker.checkNull(out);
+		Checker.nil(out);
 		_source.writeJSONString(out);
 	}
 

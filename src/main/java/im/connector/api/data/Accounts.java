@@ -56,30 +56,30 @@ public class Accounts extends Entity<Account> {
 	
 	public Accounts() {
 		super("accounts");
-		type = addProperty(Type.class, "type", "type", Constraint.MANDATORY, Constraint.READ_ONLY);
-		user = addProperty(User.class, "user", "user_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		email = addProperty(UserField.class, "email", "email_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);
-		refreshToken = addProperty(String.class, "refreshToken", "refresh_token");
-		accessToken = addProperty(String.class, "accessToken", "access_token");
-		accessTokenTime = addProperty(Timestamp.class, "accessTokenTime", "access_token_time");
-		lastSyncTime = addProperty(Timestamp.class, "lastSyncTime", "last_sync_time");
+		type = property(Type.class, "type", "type", Constraint.MANDATORY, Constraint.READ_ONLY);
+		user = property(User.class, "user", "user_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
+		email = property(UserField.class, "email", "email_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);
+		refreshToken = property(String.class, "refreshToken", "refresh_token");
+		accessToken = property(String.class, "accessToken", "access_token");
+		accessTokenTime = property(Timestamp.class, "accessTokenTime", "access_token_time");
+		lastSyncTime = property(Timestamp.class, "lastSyncTime", "last_sync_time");
 	}
 
-	public Property<?>[] getNaturalKeyProperties() { return new Property<?>[] { user, email }; }
+	public Property<?>[] naturalKey() { return new Property<?>[] { user, email }; }
 	
-	public String getAuthorizedAccessTokenFrom(Account account, Connection c) throws IOException {
-		Checker.checkNull(account);
-		Checker.checkNull(c);
-		String accessToken = account.getAccessToken();
+	public String googleAccessToken(Account account, Connection c) throws IOException {
+		Checker.nil(account);
+		Checker.nil(c);
+		String accessToken = account.accessToken();
 		if(accessToken == null) {
 			// TODO handle this situation appropriately. This happens when the user has no access configured
 			throw new IllegalStateException();
 		}
 		// Check access token:
 		TimeValue now = new TimeValue();
-		TimeValue tokenTime = new TimeValue(account.getAccessTokenTime());
+		TimeValue tokenTime = new TimeValue(account.accessTokenTime());
 		// Google access tokens expire after 1 hour (3600 seconds)
-		if(now.getAs(Measure.SECONDS) - tokenTime.getAs(Measure.SECONDS) > 3500) {
+		if(now.as(Measure.SECONDS) - tokenTime.as(Measure.SECONDS) > 3500) {
 			getLogger().info("access token no longer valid, refreshing");
 			// Access token expired or about to expire, get another one:
 			StringBuilder refreshUrl = new StringBuilder().append("https://www.googleapis.com/oauth2/v4/token")
@@ -90,7 +90,7 @@ public class Accounts extends Entity<Account> {
 				// Grant Type needs to be "refresh_token"
 				.append("&grant_type=refresh_token")
 				// The refresh token we received when authorizing access to the Contacts API:
-				.append("&refresh_token=").append(account.getRefreshToken());
+				.append("&refresh_token=").append(account.refreshToken());
 			// Retrieve the new access token:
 			getLogger().log(info("request: {}", refreshUrl.toString()));			
 			String body = HttpClient.post(refreshUrl.toString(), null);
@@ -98,18 +98,18 @@ public class Accounts extends Entity<Account> {
 			accessToken = json.getString("access_token");
 			getLogger().log(info("retrived new access token: {}", accessToken));
 			// Save new access token:
-			account.setAccessToken(accessToken);
-			account.setAccessTokenTime(Timestamp.from(Instant.now()));
-			account.setAccessToken(accessToken);
+			account.accessToken(accessToken);
+			account.accessTokenTime(Timestamp.from(Instant.now()));
+			account.accessToken(accessToken);
 			update(account, c);
 		}
-		return account.getAccessToken();
+		return account.accessToken();
 	}
 	
 	public QueryResult<Account> listFor(User u, Connection c) {
-		Checker.checkNull(c);
+		Checker.nil(c);
 		if(_listFor == null) {
-			_listFor = query().where(user.isEqualTo());
+			_listFor = query().where(user.equalTo());
 		}
 		return c.run(_listFor, u);
 	}

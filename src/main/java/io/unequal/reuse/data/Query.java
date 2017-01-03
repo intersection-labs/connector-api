@@ -22,7 +22,7 @@ public class Query<I extends Instance<?>> {
 	private String _sql;
 
 	public Query(Entity<I> entity) {
-		Checker.checkNull(entity);
+		Checker.nil(entity);
 		_entity = entity;
 		_predicates = new ArrayList<>();
 		_params = new ArrayList<>();
@@ -36,12 +36,12 @@ public class Query<I extends Instance<?>> {
 		_checkLocked();
 		for(Predicate p : where) {
 			// TODO check for repeated
-			if(p.getProperty().getEntity() != _entity) {
-				throw new IllegalArgumentException(x("property '{}' cannot be used to query entity '{}'", p.getProperty().getFullName(), _entity.getName()));
+			if(p.property().entity() != _entity) {
+				throw new IllegalArgumentException(x("property '{}' cannot be used to query entity '{}'", p.property().fullName(), _entity.name()));
 			}
 			_predicates.add(p);
-			if(p.isParameter()) {
-				_params.add(p.getProperty());
+			if(p.parameter()) {
+				_params.add(p.property());
 			}
 		}
 		return this;
@@ -56,9 +56,9 @@ public class Query<I extends Instance<?>> {
 	}
 
 	private Query<I> _orderBy(Property<?> p, Direction direction) {
-		Checker.checkNull(p);
-		if(p.getEntity() != _entity) {
-			throw new IllegalArgumentException(x("property {} cannot be used to sort entity {}", p.getFullName(), _entity.getName()));
+		Checker.nil(p);
+		if(p.entity() != _entity) {
+			throw new IllegalArgumentException(x("property {} cannot be used to sort entity {}", p.fullName(), _entity.name()));
 		}
 		_sort.add(new _Sort(p, direction));
 		return this;
@@ -69,7 +69,7 @@ public class Query<I extends Instance<?>> {
 			_limit = null;
 		}
 		else {
-			Checker.checkMinValue(limit, 1);
+			Checker.min(limit, 1);
 			_limit = limit;
 		}
 		return this;
@@ -84,7 +84,7 @@ public class Query<I extends Instance<?>> {
 			_offset = null;
 		}
 		else {
-			Checker.checkMinValue(offset, 1);
+			Checker.min(offset, 1);
 			_offset = offset;
 		}
 		return this;
@@ -105,12 +105,12 @@ public class Query<I extends Instance<?>> {
 			sb.append("SELECT ");
 			Iterator<Property<?>> itProps = _entity.propertyList().iterator();
 			while(itProps.hasNext()) {
-				sb.append(itProps.next().getColumnName());
+				sb.append(itProps.next().columnName());
 				if(itProps.hasNext()) {
 					sb.append(",");
 				}
 			}
-			sb.append(" FROM ").append(_entity.getTableName()).append(" WHERE ");
+			sb.append(" FROM ").append(_entity.tableName()).append(" WHERE ");
 			Iterator<Predicate> itArgs = _predicates.iterator();
 			while(itArgs.hasNext()) {
 				sb.append(itArgs.next().sql());
@@ -136,7 +136,7 @@ public class Query<I extends Instance<?>> {
 	
 	// For Connection:
 	Class<I> type() {
-		return _entity.getInstanceClass();
+		return _entity.instanceClass();
 	}
 
 	private void _checkLocked() {

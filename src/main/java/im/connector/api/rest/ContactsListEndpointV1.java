@@ -21,15 +21,15 @@ public class ContactsListEndpointV1 extends UserEndpoint {
 		List<JsonObject> jContacts = jContent.addChildListOf("contacts", JsonObject.class);
 		while(it.hasNext()) {
 			Contact contact = it.next();
-			if(contact.getFullName() == null && contact.getOrganization() == null) {
+			if(contact.fullName() == null && contact.organization() == null) {
 				continue;
 			}
 			JsonObject jContact = new JsonObject();
-			jContact.put("id", contact.getId());
-			jContact.put("fullName", contact.getFullName());
-			jContact.put("organization", contact.getOrganization());
-			jContact.put("status", contact.getStatus().getCode());
-			String photoURL = contact.getPhotoURL();
+			jContact.put("id", contact.id());
+			jContact.put("fullName", contact.fullName());
+			jContact.put("organization", contact.organization());
+			jContact.put("status", contact.status().code());
+			String photoURL = contact.photoUrl();
 			if(photoURL != null) {
 				jContact.put("photoURL", photoURL);
 			}

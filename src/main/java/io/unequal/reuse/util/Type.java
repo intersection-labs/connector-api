@@ -25,11 +25,11 @@ public class Type {
 	private String _nameBuffer;
 	
 	public Type(String typeName) {
-		Checker.checkEmpty(typeName);
+		Checker.empty(typeName);
 		typeName = typeName.replaceAll(" ", "");
 		typeName = typeName.replaceAll("\t", "");
 		// check for array class:
-		_arrayDimensions = Strings.countOccurrences(typeName, "[]");
+		_arrayDimensions = Strings.count(typeName, "[]");
 		if(_arrayDimensions > 0) {
 			_name = typeName.replaceAll("[\\[][\\]]", "");
 		}
@@ -39,7 +39,7 @@ public class Type {
 		// test whether the name has illegal arguments
 		// (account for "$" character in class name):
 		String tmpName = _name.replaceAll("[$]", "");
-		Checker.checkCodeIdentifier(tmpName, true);
+		Checker.codeIdentifier(tmpName, true);
 		// check if this is a primitive type:
 		boolean lclIsPrimitive = false;
 		int lclPrimitiveIndex = -1;
@@ -89,7 +89,7 @@ public class Type {
 	}
 	
 	public Type(Class<?> c) {
-		Checker.checkNull(c);
+		Checker.nil(c);
 		_class = c;
 		int count = 0;
 		while(c.isArray()) {
@@ -113,24 +113,24 @@ public class Type {
 		_nameBuffer = null;
 	}
 
-	public boolean isPrimitive() {
+	public boolean primitive() {
 		return _isPrimitive;
 	}
 	
-	public int getArrayDimensions() {
+	public int arrayDimensions() {
 		return _arrayDimensions;
 	}
 	
-	public Class<?> getJavaClass() {
+	public Class<?> javaClass() {
 		return _class;
 	}
 	
-	public Class<?> getObjectClass() {
+	public Class<?> objectClass() {
 		if(_isPrimitive) {
 			if(_arrayDimensions > 0) {
 				// transform c into it's object counterpart:
 				Class<?> objectClass = (Class<?>)_primitives[_primitiveIndex][2];
-				return new Type(objectClass.getName()+Strings.repeat("[]", _arrayDimensions)).getJavaClass();
+				return new Type(objectClass.getName()+Strings.repeat("[]", _arrayDimensions)).javaClass();
 			}
 			else {
 				return (Class<?>)_primitives[_primitiveIndex][2];
@@ -141,7 +141,7 @@ public class Type {
 		}
 	}
 
-	public Class<?> getBaseClass() {
+	public Class<?> baseClass() {
 		if(_arrayDimensions == 0) {
 			return _class;
 		}
@@ -150,7 +150,7 @@ public class Type {
 		}
 	}
 
-	public String getName() {
+	public String name() {
 		if(_nameBuffer == null) {
 			if(_arrayDimensions > 0) {
 				_nameBuffer = _name+Strings.repeat("[]", _arrayDimensions);
@@ -162,12 +162,12 @@ public class Type {
 		return _nameBuffer;
 	}
 
-	public String getClassName() {
-		String name = getName();
+	public String className() {
+		String name = name();
 		return name.substring(name.lastIndexOf('.')+1);
 	}
 
 	public String toString() {
-		return getName();
+		return name();
 	}
 }

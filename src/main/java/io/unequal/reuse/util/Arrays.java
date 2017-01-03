@@ -16,13 +16,14 @@ public class Arrays {
 	}
 
 	public static <T> T last(T[] array) {
-		Checker.checkEmpty(array);
+		Checker.empty(array);
 		return array[array.length-1];
 	}
 
-	public static int indexOf(Object o, Object[] in) {
-		Checker.checkNull(o);
-		Checker.checkNull(in);
+	@SafeVarargs
+	public static <T> int indexOf(T o, T ... in) {
+		Checker.nil(o);
+		Checker.nil(in);
 		for(int i=0; i<in.length; i++) {
 			if(o.equals(in[i])) {
 				return i;
@@ -31,13 +32,15 @@ public class Arrays {
 		return -1;
 	}
 
-	public static boolean contains(Object o, Object ... in) {
+	@SafeVarargs
+	public static <T> boolean contains(T o, T ... in) {
 		return indexOf(o, in) != -1;
 	}
 
-	public static Object[] toArrayOf(Class<?> c, Object[] array) {
-		Checker.checkNull(c);
-		Checker.checkNull(array);
+	// TODO use Generics
+	public static Object[] of(Class<?> c, Object[] array) {
+		Checker.nil(c);
+		Checker.nil(array);
 		Object[] result = (Object[])Array.newInstance(array.getClass().getComponentType(), array.length);
 		for(int i=0; i<array.length; i++) {
 			result[i] = array[i];
@@ -45,22 +48,24 @@ public class Arrays {
 		return result;
 	}
 	
-	public static Object[] toArrayOf(java.lang.Class<?> c, Iterator<?> it) {
-		Checker.checkNull(c);
-		Checker.checkNull(it);
+	// TODO use Generics
+	public static Object[] of(java.lang.Class<?> c, Iterator<?> it) {
+		Checker.nil(c);
+		Checker.nil(it);
 		LinkedList<Object> list = new LinkedList<Object>();
 		while(it.hasNext()) {
 			list.add(it.next());
 		}
-		return toArrayOf(c, list.toArray());
+		return of(c, list.toArray());
 	}
 
-	public static Object[] toArrayOf(java.lang.Class<?> c, Iterable<?> it) {
-		Checker.checkNull(it);
-		return toArrayOf(c, it.iterator());
+	// TODO use Generics
+	public static Object[] of(java.lang.Class<?> c, Iterable<?> it) {
+		Checker.nil(it);
+		return of(c, it.iterator());
 	}
 
-	public static Object[] toObjectArray(boolean[] array) {
+	public static Object[] asObject(boolean[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Boolean(array[i]);
@@ -68,7 +73,7 @@ public class Arrays {
 		return objArray;
 	}
 
-	public static Object[] toObjectArray(char[] array) {
+	public static Object[] asObject(char[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Character(array[i]);
@@ -76,7 +81,7 @@ public class Arrays {
 		return objArray;
 	}
 
-	public static Object[] toObjectArray(short[] array) {
+	public static Object[] asObject(short[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Short(array[i]);
@@ -84,7 +89,7 @@ public class Arrays {
 		return objArray;
 	}
 
-	public static Object[] toObjectArray(int[] array) {
+	public static Object[] asObject(int[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Integer(array[i]);
@@ -92,7 +97,7 @@ public class Arrays {
 		return objArray;
 	}
 
-	public static Object[] toObjectArray(long[] array) {
+	public static Object[] asObject(long[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Long(array[i]);
@@ -100,7 +105,7 @@ public class Arrays {
 		return objArray;
 	}
 
-	public static Object[] toObjectArray(float[] array) {
+	public static Object[] asObject(float[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Float(array[i]);
@@ -108,7 +113,7 @@ public class Arrays {
 		return objArray;
 	}
 
-	public static Object[] toObjectArray(double[] array) {
+	public static Object[] asObject(double[] array) {
 		Object[] objArray = new Object[array.length];
 		for(int i=0; i<array.length; i++) {
 			objArray[i] = new Double(array[i]);
@@ -117,8 +122,8 @@ public class Arrays {
 	}
 
 	public static <T> T[] concat(T[] array1, T[] array2) {
-		Checker.checkNull(array1);
-		Checker.checkNull(array2);
+		Checker.nil(array1);
+		Checker.nil(array2);
 		List<T> result = new ArrayList<T>();
 		for(T elem : array1) {
 			result.add(elem);
@@ -150,11 +155,11 @@ public class Arrays {
 	}
 
 	public static <T> void copy(T[] from, int fromIndex, T[] to, int toIndex, int length) {
-		Checker.checkNull(to);
-		Checker.checkNull(from);
-		Checker.checkIndex(toIndex);
-		Checker.checkIndex(fromIndex);
-		Checker.checkIndex(length);
+		Checker.nil(to);
+		Checker.nil(from);
+		Checker.min(toIndex, 0);
+		Checker.min(fromIndex, 0);
+		Checker.min(length, 0);
 		if(toIndex+length > to.length) {
 			throw new IndexOutOfBoundsException("index: "+(toIndex+length)+"; array length: "+to.length);
 		}
@@ -173,7 +178,7 @@ public class Arrays {
 	}
 
 	public static String toString(Object[] array) {
-		Checker.checkNull(array);
+		Checker.nil(array);
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		for(int i=0; i<array.length; i++) {
@@ -188,8 +193,8 @@ public class Arrays {
 
 	// TODO this implementation does not consider duplicates
 	public static <T> boolean equalsIgnoreOrder(T[] a, T[] b) {
-		Checker.checkNull(a);
-		Checker.checkNull(b);
+		Checker.nil(a);
+		Checker.nil(b);
 		if(a.length != b.length) {
 			return false;
 		}

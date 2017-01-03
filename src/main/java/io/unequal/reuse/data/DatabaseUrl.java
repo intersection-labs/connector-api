@@ -12,7 +12,7 @@ class DatabaseUrl {
 	private final String _password;	
 
 	public DatabaseUrl(String url, boolean local) {
-		Checker.checkEmpty(url);
+		Checker.empty(url);
 		try {
 			URI uri = new URI(url);
 			StringBuilder params = new StringBuilder();

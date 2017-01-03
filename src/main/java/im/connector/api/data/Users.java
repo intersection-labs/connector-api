@@ -40,28 +40,28 @@ public class Users extends ActiveEntity<User> {
 	
 	private Users() {
 		super("users");
-		firstName = addProperty(String.class, "firstName", "first_name");
-		lastName = addProperty(String.class, "lastName", "last_name");
-		organization = addProperty(String.class, "organization", "organization");
-		status = addProperty(Status.class, "status", "status", Constraint.MANDATORY);
+		firstName = property(String.class, "firstName", "first_name");
+		lastName = property(String.class, "lastName", "last_name");
+		organization = property(String.class, "organization", "organization");
+		status = property(Status.class, "status", "status", Constraint.MANDATORY);
 	}
 
-	public Property<?>[] getNaturalKeyProperties() { return new Property<?>[0]; }
+	public Property<?>[] naturalKey() { return new Property<?>[0]; }
 	
 	public JsonObject json(User user, Connection c) {
 		JsonObject jUser = new JsonObject();
-		jUser.put("firstName", user.getFirstName());
-		jUser.put("lastName", user.getLastName());
-		jUser.put("fullName", user.getFullName());
+		jUser.put("firstName", user.firstName());
+		jUser.put("lastName", user.lastName());
+		jUser.put("fullName", user.fullName());
 		List<JsonObject> jFields = jUser.addChildListOf("fields", JsonObject.class);
 		Iterator<UserField> itFields = UserFields.get().listFor(user, c).iterate();
 		while(itFields.hasNext()) {
 			UserField f = itFields.next();
 			JsonObject jField = new JsonObject();
-			jField.put("id", f.getId());
-			jField.put("type", f.getType());
-			jField.put("label", f.getLabel());
-			jField.put("value", f.getValue());
+			jField.put("id", f.id());
+			jField.put("type", f.type());
+			jField.put("label", f.label());
+			jField.put("value", f.value());
 			jFields.add(jField);
 		}
 		List<JsonObject> jAccounts = jUser.addChildListOf("accounts", JsonObject.class);
@@ -69,21 +69,21 @@ public class Users extends ActiveEntity<User> {
 		while(itAccounts.hasNext()) {
 			Account account = itAccounts.next();
 			JsonObject jAccount = new JsonObject();
-			jAccount.put("type", account.getType());
-			jAccount.put("email", account.findGoogleEmail().getValue());
-			jAccount.put("authorized", account.getAccessToken()==null ? Boolean.FALSE : Boolean.TRUE);
+			jAccount.put("type", account.type());
+			jAccount.put("email", account.googleEmail().value());
+			jAccount.put("authorized", account.accessToken()==null ? Boolean.FALSE : Boolean.TRUE);
 			jAccounts.add(jAccount);
 		}
 		return jUser;
 	}
 	
 	public User withEmail(String email, Connection c) {
-		Checker.checkEmpty(email);
-		Checker.checkNull(c);
+		Checker.empty(email);
+		Checker.nil(c);
 		UserField uf = UserFields.get().email(email, false, c);
 		if(uf == null) {
 			return null;
 		}
-		return uf.findUser(c);
+		return uf.user(c);
 	}
 }

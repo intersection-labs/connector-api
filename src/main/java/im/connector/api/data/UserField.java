@@ -13,33 +13,33 @@ public class UserField extends ActiveInstance<UserFields> {
 	}
 
 	public UserField(User user, FieldType type, String label, String value) {
-		this.setValue(getEntity().user, user);
-		setType(type);
-		setLabel(label);
-		setValue(value);
+		this.set(entity().user, user);
+		type(type);
+		label(label);
+		value(value);
 	}
 
 	// Impl:
-	public UserFields getEntity() { return UserFields.get(); }
-	public String describe() { return getLabel() + ": " + getValue(); }
+	public UserFields entity() { return UserFields.get(); }
+	public String describe(Connection c) { return label() + ": " + value(); }
 
 	// Getters and setters:
-	public User findUser(Connection c) { return getValue(getEntity().user, c); }
-	public FieldType getType() { return getValue(getEntity().type); }
-	public UserField setType(FieldType value) { setValue(getEntity().type, value); return this; }
-	public String getValue() { return getValue(getEntity().value); }
-	public UserField setValue(String value) { setValue(getEntity().value, value); return this; }
-	public String getLabel() { return getValue(getEntity().label); }
-	public UserField setLabel(String value) { setValue(getEntity().label, value); return this; }
-	public Boolean getValidated() { return getValue(getEntity().validated); }
-	public UserField setValidated(Boolean value) { setValue(getEntity().validated, value); return this; }
+	public User user(Connection c) { return get(entity().user, c); }
+	public FieldType type() { return get(entity().type); }
+	public UserField type(FieldType value) { set(entity().type, value); return this; }
+	public String value() { return get(entity().value); }
+	public UserField value(String value) { set(entity().value, value); return this; }
+	public String label() { return get(entity().label); }
+	public UserField label(String value) { set(entity().label, value); return this; }
+	public Boolean validated() { return get(entity().validated); }
+	public UserField validated(Boolean value) { set(entity().validated, value); return this; }
 	
 	// Custom methods:
-	public String getCalculatedLabel() {
-		final String label = getLabel();
+	public String calculatedLabel() {
+		final String label = label();
 		if(label != null) {
 			return label;
 		}
-		return getType().toString().toLowerCase();
+		return type().toString().toLowerCase();
 	}	
 }

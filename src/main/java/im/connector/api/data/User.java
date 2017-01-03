@@ -8,6 +8,7 @@ import java.util.Iterator;
 import io.unequal.reuse.data.ActiveInstance;
 import io.unequal.reuse.data.Query;
 import io.unequal.reuse.data.QueryResult;
+import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.http.JsonObject;
 
 
@@ -18,22 +19,22 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 	
 
 	// Impl:
-	public Users getEntity() { return Users.get(); }
-	public String describe() { return Common.getDescription(this); }
+	public Users entity() { return Users.get(); }
+	public String describe(Connection c) { return Common.description(this); }
 
 	// Getters and setters:
-	public String getFirstName() { return getValue(getEntity().firstName); }
-	public User setFirstName(String firstName) { setValue(getEntity().firstName, firstName); return this; }
-	public String getLastName() { return getValue(getEntity().lastName); }
-	public User setLastName(String lastName) { setValue(getEntity().lastName, lastName); return this; }
-	public String getOrganization() { return getValue(getEntity().organization); }
-	public User setOrganization(String org) { setValue(getEntity().organization, org); return this; }
-	public Users.Status getStatus() { return getValue(getEntity().status); }
-	public User setStatus(Users.Status value) { setValue(getEntity().status, value); return this; }
+	public String firstName() { return get(entity().firstName); }
+	public User firstName(String firstName) { set(entity().firstName, firstName); return this; }
+	public String lastName() { return get(entity().lastName); }
+	public User lastName(String lastName) { set(entity().lastName, lastName); return this; }
+	public String organization() { return get(entity().organization); }
+	public User organization(String org) { set(entity().organization, org); return this; }
+	public Users.Status status() { return get(entity().status); }
+	public User status(Users.Status value) { set(entity().status, value); return this; }
 		
 	// Custom methods:
-	public String getFullName() {
-		return Common.getFullName(this);
+	public String fullName() {
+		return Common.fullName(this);
 	}
 
 	public User copyFrom(Person<?> p) {
@@ -44,8 +45,8 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 	public QueryResult<Contact> findContacts(boolean includeDeleted) {
 		Contacts cs = Contacts.get();
 		Query<Contact> q = new Query<>(cs);
-		q.addWhere(cs.owner.isEqualTo(this));
-		q.addWhere(cs.active.isEqualTo(!includeDeleted));
+		q.addWhere(cs.owner.equalTo(this));
+		q.addWhere(cs.active.equalTo(!includeDeleted));
 		return q.run();
 	}
 
@@ -56,14 +57,14 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 	public QueryResult<Contact> findConnections() {
 		Contacts cs = Contacts.get();
 		Query<Contact> q = new Query<>(cs);
-		q.addWhere(cs.owner.isEqualTo(this));
-		q.addWhere(cs.active.isEqualTo(true));
-		q.addWhere(cs.status.isEqualTo(Contacts.Status.CONNECTED));
+		q.addWhere(cs.owner.equalTo(this));
+		q.addWhere(cs.active.equalTo(true));
+		q.addWhere(cs.status.equalTo(Contacts.Status.CONNECTED));
 		return q.run();
 	}
 
 	public QueryResult<Account> findAccounts() {
-		return accounts.findWhere(accounts.user.isEqualTo(this));
+		return accounts.findWhere(accounts.user.equalTo(this));
 	}
 
 
@@ -79,7 +80,7 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 	public void connectWith(User anotherUser, Contact contact, List<UserField> shared) {
 		// TODO insert invitation
 		invitations.insert(new Invitation(this, anotherUser));
-		contacts.update(contact.setConnection(anotherUser));
+		contacts.update(contact.connection(anotherUser));
 		for(UserField f : shared) {
 			SharedField sf = new SharedField(f, this, anotherUser);
 			sharedFields.insert(sf);
@@ -91,7 +92,7 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 		User inviter = i.findFrom();
 		i.setAcceptedOn();
 		invitations.update(i);
-		contacts.update(contact.setConnection(inviter));
+		contacts.update(contact.connection(inviter));
 		for(UserField f : sharedBack) {
 			// Register a new shared field:
 			SharedField sf = new SharedField(f, this, inviter);
@@ -105,7 +106,7 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 
 	private UserField _findField(String value, boolean active) {
 		UserFields fields = UserFields.get();
-		return fields.findSingle(fields.user.isEqualTo(this), fields.value.isEqualTo(value), fields.active.isEqualTo(active));
+		return fields.findSingle(fields.user.equalTo(this), fields.value.equalTo(value), fields.active.equalTo(active));
 	}
 
 	/*

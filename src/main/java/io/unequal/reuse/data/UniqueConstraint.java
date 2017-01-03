@@ -1,5 +1,6 @@
 package io.unequal.reuse.data;
 import io.unequal.reuse.util.Arrays;
+import io.unequal.reuse.util.Checker;
 
 
 class UniqueConstraint {
@@ -12,7 +13,7 @@ class UniqueConstraint {
 		_query = query;
 		_props = props;
 		for(Property<?> prop : props) {
-			_query.where(prop.isEqualTo());
+			_query.where(prop.equalTo());
 		}
 	}
 
@@ -45,14 +46,17 @@ class UniqueConstraint {
 		return false;
 	}
 	
-	public Property<?>[] getProperties() {
+	public Property<?>[] properties() {
 		return _props;
 	}
 
-	public Predicate[] toArgs(Instance<?> i) {
-		Predicate[] args = new Predicate[_props.length];
-		for(int j=0; j<_props.length; j++) {
-			args[j] = new Predicate(_props[j], Predicate.Operator.EQUAL, i.getValue(_props[j]));
+	public Object[] args(Instance<?> i, Connection c) {
+		Checker.nil(i);
+		Property<?>[] params = _query.params();
+		Object[] args = new Object[params.length];
+		for(int j=0; j<args.length; j++) {
+			// TODO we are wapping the values here, only for them to be unrapped on c.run
+			args[j] = i.get(params[j], c);
 		}
 		return args;
 	}

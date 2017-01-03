@@ -1,32 +1,32 @@
 package im.connector.api.data;
-
 import io.unequal.reuse.util.Checker;
+
 
 public class Common {
 
-	public static String getFullName(Person<?> p) {
-		if(p.getFirstName() == null) {
-			return p.getLastName();
+	public static String fullName(Person<?> p) {
+		if(p.firstName() == null) {
+			return p.lastName();
 		}
-		if(p.getLastName() == null) {
-			return p.getFirstName();
+		if(p.lastName() == null) {
+			return p.firstName();
 		}
-		return p.getFirstName() + " " + p.getLastName();
+		return p.firstName() + " " + p.lastName();
 	}
 	
-	public static String getDescription(Person<?> p) {
-		String fullName = p.getFullName();
+	public static String description(Person<?> p) {
+		String fullName = p.fullName();
 		if(fullName != null) {
 			return fullName;
 		}
-		return p.getOrganization();
+		return p.organization();
 	}
 	
 	public static void copy(Person<?> from, Person<?> to) {
-		Checker.checkNull(from);
-		Checker.checkNull(to);
-		to.setFirstName(from.getFirstName());
-		to.setLastName(from.getLastName());
-		to.setOrganization(from.getOrganization());
+		Checker.nil(from);
+		Checker.nil(to);
+		to.firstName(from.firstName());
+		to.lastName(from.lastName());
+		to.organization(from.organization());
 	}
 }

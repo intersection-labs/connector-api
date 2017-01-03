@@ -9,7 +9,7 @@ public class ImmutableSet<T> extends AbstractSet<T> {
 	private final Set<T> _set;
 
 	public ImmutableSet(Set<T> c) {
-		Checker.checkNull(c);
+		Checker.nil(c);
 		_set = c;
 	}
 

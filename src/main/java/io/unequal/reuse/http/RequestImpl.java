@@ -19,7 +19,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements Request {
 	}
 
 	public Cookie getCookie(String name) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		Cookie[] cookies = getCookies();
 		if(cookies == null) {
 			return null;
@@ -65,7 +65,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements Request {
 
 	public String getApplicationName() {
 		String s = getContextPath();
-		if(Strings.isEmpty(s)) {
+		if(Strings.empty(s)) {
 			return s;
 		}
 		else {
@@ -103,9 +103,9 @@ public class RequestImpl extends HttpServletRequestWrapper implements Request {
 	}
 
 	public String getParameter(String name, boolean required) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		String param = super.getParameter(name);
-		param = Strings.isEmpty(param) ? null : param;
+		param = Strings.empty(param) ? null : param;
 		if(required && param==null) {
 			throw new ParameterValidationException(name);
 		}
@@ -117,7 +117,7 @@ public class RequestImpl extends HttpServletRequestWrapper implements Request {
 	}
 
 	public String getParameter(String name, String def, String ... allowed) {
-		Checker.checkIllegalValue(def, (Object[])allowed);
+		Checker.in(def, (Object[])allowed);
 		final String param = getParameter(name);
 		if(param == null) {
 			return def;

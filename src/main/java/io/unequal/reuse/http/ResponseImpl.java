@@ -33,15 +33,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	}
 
 	public boolean hasCookie(String name, String path) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		if(path != null) {
-			Checker.checkEmpty(path);
+			Checker.empty(path);
 		}
 		return _cookieNames.contains(_getCookieFQN(name, path));
 	}
 
 	public void addCookie(Cookie c) {
-		Checker.checkNull(c);
+		Checker.nil(c);
 		_checkCommitted();
 		if(hasCookie(c.getName(), c.getPath())) {
 			throw new IllegalStateException("cookie '"+_getCookieFQN(c)+"' has already been added to the response");
@@ -51,15 +51,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	}
 
 	public void removeCookie(String name, String path, String domain) {
-		Checker.checkEmpty(name);
+		Checker.empty(name);
 		_checkCommitted();
 		Cookie c = new Cookie(name, "deleted");
 		if(path != null) {
-			Checker.checkEmpty(path);
+			Checker.empty(path);
 			c.setPath(path);
 		}
 		if(domain != null) {
-			Checker.checkEmpty(domain);
+			Checker.empty(domain);
 			c.setDomain(domain);
 		}
 		c.setMaxAge(0);
@@ -67,7 +67,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	}
 
 	public void setContentType(String contentType) {
-		Checker.checkEmpty(contentType);
+		Checker.empty(contentType);
 		_checkCommitted();
 		if(!_lenient) {
 			if(_contentTypeSet) {
@@ -109,7 +109,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	}
 
 	public void sendError(StatusCode status, JsonObject jContent, Object ... params) throws IOException {
-		Checker.checkNull(status);
+		Checker.nil(status);
 		_sendContentType(Constants.JSON);
 		setStatus(status.httpCode);
 		JsonObject jResponse = new JsonObject();
@@ -136,15 +136,15 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	}
 
 	public void sendError(EndpointException e) throws IOException {
-		Checker.checkNull(e);
+		Checker.nil(e);
 		_sendContentType(Constants.JSON);
-		setStatus(e.getErrorCode().httpCode);
+		setStatus(e.errorCode().httpCode);
 		JsonObject jResponse = new JsonObject();
 		JsonObject jHeader = jResponse.addChild("header");
-		jHeader.put("status", e.getErrorCode().code);
+		jHeader.put("status", e.errorCode().code);
 		jHeader.put("message", e.getMessage());
-		if(e.getContent() != null) {
-			jResponse.put("content", e.getContent());
+		if(e.content() != null) {
+			jResponse.put("content", e.content());
 		}
 		PrintWriter out = getWriter();
 		jResponse.write(out);
@@ -206,7 +206,7 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 	}
 	
 	private void _sendContentType(String contentType) {
-		if(!_contentTypeSet && !_committed && !Strings.isEmpty(contentType)) {
+		if(!_contentTypeSet && !_committed && !Strings.empty(contentType)) {
 			setContentType(contentType);
 		}
 		_committed = true;

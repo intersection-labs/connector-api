@@ -14,7 +14,7 @@ public class HttpClient {
 	public static final String CHARSET = "UTF-8";
 	
 	public static String get(String url) throws IOException {
-		Checker.checkEmpty(url);
+		Checker.empty(url);
 		URL theUrl = new URL(url);
 		HttpURLConnection connection = (HttpURLConnection)theUrl.openConnection();
 		connection.setRequestMethod("GET");
@@ -23,7 +23,7 @@ public class HttpClient {
 	}
 	
 	public static String post(String url, Map<String,String> params) throws IOException { 
-		Checker.checkEmpty(url);
+		Checker.empty(url);
 		// Process parameters:
 		StringBuilder postParams = new StringBuilder();
 		if(params != null) {

@@ -12,11 +12,11 @@ public abstract class DataValidationException extends RuntimeException {
 		_value = value;
 	}
 	
-	public Property<?> getProperty() {
+	public Property<?> property() {
 		return _property;
 	}
 	
-	public Object getValue() {
+	public Object value() {
 		return _value;
 	}
 

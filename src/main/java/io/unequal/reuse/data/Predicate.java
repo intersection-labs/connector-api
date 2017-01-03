@@ -20,7 +20,7 @@ public class Predicate {
 		_value = value;
 		_op = op;
 		StringBuilder sb = new StringBuilder();
-		sb.append(_property.getColumnName());
+		sb.append(_property.columnName());
 		if(value == NULL) {
 			if(_op == Operator.EQUAL) {
 				sb.append("IS NULL");
@@ -58,19 +58,19 @@ public class Predicate {
 		_sql = sb.toString();
 	}
 
-	public Property<?> getProperty() {
+	public Property<?> property() {
 		return _property;
 	}
 	
-	public Object getValue() {
+	public Object value() {
 		return _value;
 	}
 	
-	public Operator getOperator() {
+	public Operator operator() {
 		return _op;
 	}
 	
-	public boolean isParameter() {
+	public boolean parameter() {
 		return _value == null;
 	}
 	
