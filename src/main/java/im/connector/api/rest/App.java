@@ -9,6 +9,7 @@ public class App {
 	private static final String _PORT = "PORT";
 	private static final String _ENV = "ENV";
 	private static final String _APP_URL = "APP_URL";
+	private static final String _WEB_APP_URL = "WEB_APP_URL";
 	private static final String _DATABASE_URL = "DATABASE_URL";
 	private static final String _GOOGLE_CLIENT_ID = "GOOGLE_CLIENT_ID";
 	private static final String _GOOGLE_CLIENT_SECRET = "GOOGLE_CLIENT_SECRET";
@@ -18,6 +19,7 @@ public class App {
 		config.load(_PORT, Integer.class);
 		config.load(_ENV, Env.class);
 		config.load(_APP_URL, URL.class);
+		config.load(_WEB_APP_URL, URL.class);
 		config.load(_DATABASE_URL, String.class);
 		config.load(_GOOGLE_CLIENT_ID, String.class);
 		config.load(_GOOGLE_CLIENT_SECRET, String.class);		
@@ -33,6 +35,10 @@ public class App {
 	
 	public static URL url() {
 		return (URL)Config.get().get(_APP_URL);
+	}
+
+	public static URL webAppUrl() {
+		return (URL)Config.get().get(_WEB_APP_URL);
 	}
 	
 	public static String domain() {

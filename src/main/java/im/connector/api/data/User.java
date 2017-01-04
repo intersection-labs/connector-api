@@ -41,81 +41,16 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 		Common.copy(p, this);
 		return this;
 	}
-
-	public QueryResult<Contact> findContacts(boolean includeDeleted) {
-		Contacts cs = Contacts.get();
-		Query<Contact> q = new Query<>(cs);
-		q.addWhere(cs.owner.equalTo(this));
-		q.addWhere(cs.active.equalTo(!includeDeleted));
-		return q.run();
-	}
-
-	public QueryResult<Contact> findContacts() {
-		return findContacts(false);
-	}
-
-	public QueryResult<Contact> findConnections() {
-		Contacts cs = Contacts.get();
-		Query<Contact> q = new Query<>(cs);
-		q.addWhere(cs.owner.equalTo(this));
-		q.addWhere(cs.active.equalTo(true));
-		q.addWhere(cs.status.equalTo(Contacts.Status.CONNECTED));
-		return q.run();
-	}
-
-	public QueryResult<Account> findAccounts() {
-		return accounts.findWhere(accounts.user.equalTo(this));
-	}
-
-
-	public UserField findField(String value) {
-		return _findField(value, true);
-	}
-
-	public UserField findDeletedField(String value) {
-		return _findField(value, false);
-	}
 	
-	// TODO should be in the endpoint. Remove from the testing Servlet
-	public void connectWith(User anotherUser, Contact contact, List<UserField> shared) {
-		// TODO insert invitation
-		invitations.insert(new Invitation(this, anotherUser));
-		contacts.update(contact.connection(anotherUser));
-		for(UserField f : shared) {
-			SharedField sf = new SharedField(f, this, anotherUser);
-			sharedFields.insert(sf);
-		}
-	}
-	
-	// TODO this logic should be in the endpoint
-	public void acceptInvitation(Invitation i, Contact contact, List<UserField> sharedBack) {
-		User inviter = i.findFrom();
-		i.setAcceptedOn();
-		invitations.update(i);
-		contacts.update(contact.connection(inviter));
-		for(UserField f : sharedBack) {
-			// Register a new shared field:
-			SharedField sf = new SharedField(f, this, inviter);
-			sharedFields.insert(sf);
-			// TODO Remove the corresponding saved field, if any:
-			// _replaceSharedField(contact, f);
-			// _replaceSharedField(inviterContact, f);
-		}
+	public QueryResult<UserField> emails(Connection c) {
+		return UserFields.get().allFor(this, FieldType.EMAIL, c);
 	}
 
-
-	private UserField _findField(String value, boolean active) {
-		UserFields fields = UserFields.get();
-		return fields.findSingle(fields.user.equalTo(this), fields.value.equalTo(value), fields.active.equalTo(active));
+	public QueryResult<Account> accounts(Connection c) {
+		return Accounts.get().listFor(this, c);
 	}
 
-	/*
-	private void _replaceSharedField(Contact contact, UserField f) {
-		UserField existing = contact.findField(f.getValue());
-		if(existing != null) {
-			// TODO if label is different, register an update for the timeline
-			userFields.update((UserField)existing.setActive(false));
-		}
+	public QueryResult<Contact> contacts(Connection c) {
+		return Contacts.get().listActiveFor(this, c);
 	}
-	*/
 }

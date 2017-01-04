@@ -18,7 +18,7 @@ public class SessionsSignInEndpointV1 extends Endpoint {
 		// TODO parse email address
 		String email = req.getParameter("email", true);
 		Connection c = resp.connection();
-		User user = Users.get().withEmail(email, c);
+		User user = Users.get().with(email, FieldType.EMAIL, c);
 		if(user == null) {
 			resp.sendError(StatusCodes.EMAIL_NOT_FOUND);
 			return;

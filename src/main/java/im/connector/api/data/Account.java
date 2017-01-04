@@ -22,12 +22,12 @@ public class Account extends Instance<Accounts> {
 
 	// Impl:
 	public Accounts entity() { return Accounts.get(); }
-	public String describe(Connection c) { return type()+"/"+googleEmail(c).value(); }
+	public String describe(Connection c) { return type()+"/"+email(c).value(); }
 
 	// Getters and setters:
 	public Type type() { return get(entity().type); }
 	public User user(Connection c) { return get(entity().user, c); }
-	public UserField googleEmail(Connection c) { return get(entity().email, c); }
+	public UserField email(Connection c) { return get(entity().email, c); }
 	public String accessToken() { return get(entity().accessToken); }
 	public Account accessToken(String value) { set(entity().accessToken, value); return this; }
 	public Timestamp accessTokenTime() { return get(entity().accessTokenTime); }

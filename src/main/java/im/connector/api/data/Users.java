@@ -4,7 +4,7 @@ import java.util.Iterator;
 import io.unequal.reuse.data.Constant;
 import io.unequal.reuse.data.ActiveEntity;
 import io.unequal.reuse.data.Property;
-import io.unequal.reuse.data.Property.Constraint;
+import io.unequal.reuse.data.Property.Flag;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.http.JsonObject;
 import io.unequal.reuse.util.Checker;
@@ -43,7 +43,7 @@ public class Users extends ActiveEntity<User> {
 		firstName = property(String.class, "firstName", "first_name");
 		lastName = property(String.class, "lastName", "last_name");
 		organization = property(String.class, "organization", "organization");
-		status = property(Status.class, "status", "status", Constraint.MANDATORY);
+		status = property(Status.class, "status", "status", Flag.MANDATORY);
 	}
 
 	public Property<?>[] naturalKey() { return new Property<?>[0]; }
@@ -54,7 +54,7 @@ public class Users extends ActiveEntity<User> {
 		jUser.put("lastName", user.lastName());
 		jUser.put("fullName", user.fullName());
 		List<JsonObject> jFields = jUser.addChildListOf("fields", JsonObject.class);
-		Iterator<UserField> itFields = UserFields.get().listFor(user, c).iterate();
+		Iterator<UserField> itFields = UserFields.get().allFor(user, c).iterate();
 		while(itFields.hasNext()) {
 			UserField f = itFields.next();
 			JsonObject jField = new JsonObject();
@@ -70,17 +70,18 @@ public class Users extends ActiveEntity<User> {
 			Account account = itAccounts.next();
 			JsonObject jAccount = new JsonObject();
 			jAccount.put("type", account.type());
-			jAccount.put("email", account.googleEmail().value());
+			jAccount.put("email", account.email(c).value());
 			jAccount.put("authorized", account.accessToken()==null ? Boolean.FALSE : Boolean.TRUE);
 			jAccounts.add(jAccount);
 		}
 		return jUser;
 	}
 	
-	public User withEmail(String email, Connection c) {
-		Checker.empty(email);
+	public User with(String value, FieldType type, Connection c) {
+		Checker.empty(value);
+		Checker.nil(type);
 		Checker.nil(c);
-		UserField uf = UserFields.get().email(email, false, c);
+		UserField uf = UserFields.get().with(value, type, c);
 		if(uf == null) {
 			return null;
 		}

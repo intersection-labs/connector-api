@@ -8,11 +8,13 @@ import java.util.logging.Logger;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Date;
+import io.unequal.reuse.util.Checker;
 import io.unequal.reuse.util.IntegrityException;
 import static io.unequal.reuse.util.Util.*;
 
 
 
+// TODO we need to attempt closing resources before re-throwing the SQLException
 public class Connection implements AutoCloseable {
 
 	private final Database _db;
@@ -75,6 +77,22 @@ public class Connection implements AutoCloseable {
 		}
 	}
 
+	public int delete(String sql, int[] types, Object[] args) {
+		try {
+			PreparedStatement ps = _c.prepareStatement(sql);
+			for(int i=0; i<args.length; i++) {
+				ps.setObject(i+1, args[i], types[i]);
+			}
+			_logger.info(x("Executing query: {}", ps));
+			int count = ps.executeUpdate();
+			ps.close();
+			return count;
+		}
+		catch(SQLException sqle) {
+			throw new DatabaseException(sqle);
+		}
+	}
+
 	public <I extends Instance<?>> QueryResult<I> run(Query<I> query, Object ... args) {
 		try {
 			PreparedStatement ps = _c.prepareStatement(query.sql());
@@ -105,7 +123,7 @@ public class Connection implements AutoCloseable {
 			List<I> results = new ArrayList<>();
 			List<Property<?>> propList = query.entity().propertyList();
 			while(rs.next()) {
-				I instance = Instance.newFrom(query.type());
+				I instance = Instance.create(query.type());
 				for(int j=0; j<propList.size(); j++) {
 					Property<?> prop = propList.get(j);
 					instance.update(prop, rs.getObject(j+1), true);

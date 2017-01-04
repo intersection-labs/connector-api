@@ -9,7 +9,7 @@ import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.data.Query;
-import io.unequal.reuse.data.Property.Constraint;
+import io.unequal.reuse.data.Property.Flag;
 import io.unequal.reuse.http.JsonObject;
 import io.unequal.reuse.http.Request;
 import io.unequal.reuse.http.Response;
@@ -48,8 +48,8 @@ public class Sessions extends Entity<Session> {
 	
 	private Sessions() {
 		super("sessions");
-		uuid = property(String.class, "uuid", "uuid", Constraint.MANDATORY, Constraint.UNIQUE, Constraint.READ_ONLY);
-		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY);
+		uuid = property(String.class, "uuid", "uuid", Flag.MANDATORY, Flag.UNIQUE, Flag.READ_ONLY);
+		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Flag.MANDATORY);
 		timeLastAccessed = property(Timestamp.class, "timeLastAccessed", "time_last_accessed");
 		timeClosed = property(Timestamp.class, "timeClosed", "time_closed");
 		closeReason = property(String.class, "closeReason", "close_reason");
@@ -82,7 +82,7 @@ public class Sessions extends Entity<Session> {
 		// Cookie found, retrieve session from database:
 		Session session = find(sid.getValue(), c);
 		if(session == null) {
-			getLogger().log(warn("session with UUID {} was not found on the database", sid.getValue()));
+			logger().log(warn("session with UUID {} was not found on the database", sid.getValue()));
 			if(fail) {
 				content.put("reason", "invalid session id");
 				throw new NotAuthenticatedException(content);

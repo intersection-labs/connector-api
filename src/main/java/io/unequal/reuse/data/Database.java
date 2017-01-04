@@ -1,7 +1,8 @@
 package io.unequal.reuse.data;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.Set;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.sql.SQLException;
 import java.beans.PropertyVetoException;
 import com.mchange.v2.c3p0.*;
@@ -18,6 +19,7 @@ public class Database {
 	// INSTANCE:
 	private final Map<String,Entity<?>> _byName;
 	private final Map<Class<?>,Entity<?>> _byInstance;
+	private final Set<String> _byTableName;
 	private final ComboPooledDataSource _pool;
 	private final Map<java.sql.Connection, Connection> _dbcCache;
 
@@ -25,6 +27,7 @@ public class Database {
 		try {
 			_byName = new HashMap<>();
 			_byInstance = new HashMap<>();
+			_byTableName = new HashSet<>();
 			DatabaseUrl dbUrl = new DatabaseUrl(url, local);
 			_pool = new ComboPooledDataSource();
 			_pool.setDriverClass("org.postgresql.Driver");            
@@ -43,15 +46,18 @@ public class Database {
 		Checker.nil(model);
 		// Cache entities:
 		for(Entity<?> e : model.entities()) {
-			Entity<?> tmp = _byName.get(e.getClass().getSimpleName());
-			if(tmp != null) {
-				throw new IllegalArgumentException(x("entity '{}' has already been registered", e.getClass().getSimpleName()));
+			if(_byName.containsKey(e.name())) {
+				throw new IllegalArgumentException(x("entity '{}' has already been registered", e.name()));
 			}
-			_byName.put(e.name(), e);
 			if(_byInstance.containsKey(e.instanceClass())) {
 				throw new IntegrityException();
 			}
+			if(_byTableName.contains(e.tableName())) {
+				throw new IllegalArgumentException(x("table '{}' has already been registered", e.tableName()));
+			}
+			_byName.put(e.name(), e);
 			_byInstance.put(e.instanceClass(), e);
+			_byTableName.add(e.tableName());
 		}
 		// Load them:
 		for(Entity<?> e : model.entities()) {

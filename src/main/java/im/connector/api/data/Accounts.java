@@ -9,7 +9,7 @@ import java.time.Instant;
 import io.unequal.reuse.data.Constant;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
-import io.unequal.reuse.data.Property.Constraint;
+import io.unequal.reuse.data.Property.Flag;
 import io.unequal.reuse.data.Property.OnDelete;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.data.Query;
@@ -39,7 +39,7 @@ public class Accounts extends Entity<Account> {
 		
 		private Type(int code, String description) {
 			super(code, description);
-		}		
+		}
 	}
 	
 	// INSTANCE:
@@ -56,9 +56,9 @@ public class Accounts extends Entity<Account> {
 	
 	public Accounts() {
 		super("accounts");
-		type = property(Type.class, "type", "type", Constraint.MANDATORY, Constraint.READ_ONLY);
-		user = property(User.class, "user", "user_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		email = property(UserField.class, "email", "email_id", OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY, Constraint.UNIQUE);
+		type = property(Type.class, "type", "type", Flag.MANDATORY, Flag.READ_ONLY);
+		user = property(User.class, "user", "user_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
+		email = property(UserField.class, "email", "email_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY, Flag.UNIQUE);
 		refreshToken = property(String.class, "refreshToken", "refresh_token");
 		accessToken = property(String.class, "accessToken", "access_token");
 		accessTokenTime = property(Timestamp.class, "accessTokenTime", "access_token_time");
@@ -80,7 +80,7 @@ public class Accounts extends Entity<Account> {
 		TimeValue tokenTime = new TimeValue(account.accessTokenTime());
 		// Google access tokens expire after 1 hour (3600 seconds)
 		if(now.as(Measure.SECONDS) - tokenTime.as(Measure.SECONDS) > 3500) {
-			getLogger().info("access token no longer valid, refreshing");
+			logger().info("access token no longer valid, refreshing");
 			// Access token expired or about to expire, get another one:
 			StringBuilder refreshUrl = new StringBuilder().append("https://www.googleapis.com/oauth2/v4/token")
 				// Client ID from the API console registration:
@@ -92,11 +92,11 @@ public class Accounts extends Entity<Account> {
 				// The refresh token we received when authorizing access to the Contacts API:
 				.append("&refresh_token=").append(account.refreshToken());
 			// Retrieve the new access token:
-			getLogger().log(info("request: {}", refreshUrl.toString()));			
+			logger().log(info("request: {}", refreshUrl.toString()));			
 			String body = HttpClient.post(refreshUrl.toString(), null);
 			JsonObject json = JsonObject.parse(body);
 			accessToken = json.getString("access_token");
-			getLogger().log(info("retrived new access token: {}", accessToken));
+			logger().log(info("retrived new access token: {}", accessToken));
 			// Save new access token:
 			account.accessToken(accessToken);
 			account.accessTokenTime(Timestamp.from(Instant.now()));

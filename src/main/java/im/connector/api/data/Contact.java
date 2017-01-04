@@ -51,12 +51,12 @@ public class Contact extends ActiveInstance<Contacts> implements Person<ContactF
 		return Common.fullName(this);
 	}
 
-	public String photoUrl() throws IOException {
-		Iterator<ContactMapping> it = findMappings().iterate();
+	public String authorizedPhotoUrl(Connection c) throws IOException {
+		Iterator<ContactMapping> it = mappings(c).iterate();
 		while(it.hasNext()) {
 			ContactMapping cm = it.next();
 			if(cm.photoUrl() != null) {
-				return cm.getAuthorizedPhotoURL();
+				return cm.authorizedPhotoUrl(c);
 			}
 		}
 		return null;
@@ -66,42 +66,20 @@ public class Contact extends ActiveInstance<Contacts> implements Person<ContactF
 		Common.copy(p, this);
 		return this;
 	}
-
-	public QueryResult<ContactField> findFields() {
-		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.equalTo(this), fields.active.equalTo(true));
-	}
-
-	public QueryResult<ContactField> findEmails() {
-		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.equalTo(this), fields.type.equalTo(FieldType.EMAIL), fields.active.equalTo(true));
-	}
-
-	public QueryResult<ContactField> findPhoneNumbers() {
-		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.equalTo(this), fields.type.equalTo(FieldType.PHONE), fields.active.equalTo(true));
-	}
-
-	public QueryResult<ContactField> findAddresses() {
-		ContactFields fields = ContactFields.get();
-		return fields.findWhere(fields.contact.equalTo(this), fields.type.equalTo(FieldType.ADDRESS), fields.active.equalTo(true));
-	}
-
-	public ContactField findField(String value) {
-		return _findField(value, true);
-	}
-
-	public ContactField findDeletedField(String value) {
-		return _findField(value, false);
-	}
 	
-	public QueryResult<ContactMapping> findMappings() {
-		ContactMappings cm = ContactMappings.get();
-		return cm.findWhere(cm.contact.equalTo(this));
+	public QueryResult<ContactField> emails(Connection c) {
+		return ContactFields.get().allFor(this, FieldType.EMAIL, c);
 	}
-	
-	private ContactField _findField(String value, boolean active) {
-		ContactFields fields = ContactFields.get();
-		return fields.findSingle(fields.contact.equalTo(this), fields.value.equalTo(value), fields.active.equalTo(active));
+
+	public QueryResult<ContactField> phoneNumbers(Connection c) {
+		return ContactFields.get().allFor(this, FieldType.PHONE, c);
+	}
+
+	public QueryResult<ContactField> addresses(Connection c) {
+		return ContactFields.get().allFor(this, FieldType.ADDRESS, c);
+	}
+
+	public QueryResult<ContactMapping> mappings(Connection c) {
+		return ContactMappings.get().listFor(this, c);
 	}
 }

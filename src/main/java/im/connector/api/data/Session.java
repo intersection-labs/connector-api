@@ -20,7 +20,7 @@ public class Session extends Instance<Sessions> {
 
 	// Impl:
 	public Sessions entity() { return Sessions.get(); }
-	public String describe() { return uuid().toString(); }
+	public String describe(Connection c) { return uuid().toString(); }
 
 	// Getters and setters:
 	public String uuid() { return get(entity().uuid); }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.lang.reflect.ParameterizedType;
-import io.unequal.reuse.data.Property.Constraint;
+import io.unequal.reuse.data.Property.Flag;
 import io.unequal.reuse.data.Property.OnDelete;
 import io.unequal.reuse.util.Checker;
 import io.unequal.reuse.util.IllegalUsageException;
@@ -33,11 +33,13 @@ public abstract class Entity<I extends Instance<?>> {
 	private final Class<I> _instanceType;
 	private final Map<String,Property<?>> _propertyMap;
 	private final List<Property<?>> _propertyList;
+	private final Set<String> _columns;
 	private final List<Dependency> _dependencies;
 	private final Set<UniqueConstraint> _uConstraints;
 	private Database _db;
 	// Data management:
 	private String _insertSql;
+	private String _deleteSql;
 	private Query<I> _findById;
 	
 
@@ -50,18 +52,20 @@ public abstract class Entity<I extends Instance<?>> {
 		_instanceType = ((Class<I>)((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
 		_propertyMap = new HashMap<>();
 		_propertyList = new ArrayList<>();
+		_columns = new HashSet<>();
 		_dependencies = new ArrayList<>();
 		_uConstraints = new HashSet<>();
 		// Common properties:
-		id = property(Long.class, "id", "id", Constraint.MANDATORY, Constraint.AUTO_GENERATED, Constraint.READ_ONLY);
-		timeCreated = property(Timestamp.class, "timeCreated", "time_created", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);
-		timeUpdated = property(Timestamp.class, "timeUpdated", "time_updated", new Generators.Now(), Constraint.MANDATORY, Constraint.READ_ONLY);		
+		id = property(Long.class, "id", "id", Flag.MANDATORY, Flag.AUTO_GENERATED, Flag.READ_ONLY);
+		timeCreated = property(Timestamp.class, "timeCreated", "time_created", new Generators.Now(), Flag.MANDATORY, Flag.READ_ONLY);
+		timeUpdated = property(Timestamp.class, "timeUpdated", "time_updated", new Generators.Now(), Flag.MANDATORY, Flag.READ_ONLY);		
 		// Data management:
 		_insertSql = null;
+		_deleteSql = null;
 		_findById = null;
 	}
 
-	protected Logger getLogger() {
+	protected Logger logger() {
 		return _logger;
 	}
 
@@ -96,23 +100,23 @@ public abstract class Entity<I extends Instance<?>> {
 		return new ImmutableList<Dependency>(_dependencies);
 	}
 	
-	protected <T> Property<T> property(Class<T> c, String name, String columnName, Constraint ... constraints) {
+	protected <T> Property<T> property(Class<T> c, String name, String columnName, Flag ... constraints) {
 		return _property(c, name, columnName, (Generators.Direct<T>)null, null, constraints);
 	}
 
-	protected <T> Property<T> property(Class<T> c, String name, String columnName, T def, Constraint ... constraints) {
+	protected <T> Property<T> property(Class<T> c, String name, String columnName, T def, Flag ... constraints) {
 		return _property(c, name, columnName, new Generators.Direct<T>(def), null, constraints);
 	}
 
-	protected <T> Property<T> property(Class<T> c, String name, String columnName, Generator<T> def, Constraint ... constraints) {
+	protected <T> Property<T> property(Class<T> c, String name, String columnName, Generator<T> def, Flag ... constraints) {
 		return _property(c, name, columnName, def, null, constraints);
 	}
 
-	protected <T> Property<T> property(Class<T> c, String name, String columnName, Property.OnDelete onDelete, Constraint ...constraints) {
+	protected <T> Property<T> property(Class<T> c, String name, String columnName, OnDelete onDelete, Flag ...constraints) {
 		return _property(c, name, columnName, null, onDelete, constraints);
 	}
 	
-	private <T> Property<T> _property(Class<T> c, String name, String columnName, Generator<T> def, Property.OnDelete onDelete, Constraint ... constraints) {
+	private <T> Property<T> _property(Class<T> c, String name, String columnName, Generator<T> def, OnDelete onDelete, Flag ... constraints) {
 		Checker.nil(c);
 		Checker.empty(name);
 		Checker.empty(columnName);
@@ -122,6 +126,9 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 		if(_propertyMap.containsKey(name)) {
 			throw new IllegalArgumentException(x("property named '{}' already exists", name));
+		}
+		if(_columns.contains(columnName)) {
+			throw new IllegalArgumentException(x("column named '{}' already exists", columnName));
 		}
 		Property<T> prop = new Property<T>(this, c, name, columnName, def, onDelete, constraints);
 		_propertyMap.put(name, prop);
@@ -162,11 +169,12 @@ public abstract class Entity<I extends Instance<?>> {
 	// For Database:
 	@SuppressWarnings("unchecked")
 	void loadInto(Database db) {
-		getLogger().log(info("loading entity '{}'", name()));
+		logger().log(info("loading entity '{}'", name()));
 		if(_db != null) {
 			throw new IllegalStateException(x("entity '{}' has already been loaded into another database", name()));
 		}
 		_db = db;
+		// Prepare insert SQL:
 		StringBuilder sb = new StringBuilder();
 		sb.append("INSERT INTO ").append(tableName()).append("(");
 		// Load all related entities and dependencies:
@@ -188,14 +196,15 @@ public abstract class Entity<I extends Instance<?>> {
 				count++;
 			}
 		}
-		// Prepare SQL for insert statement:
 		sb.append(") VALUES (?");
 		if(count > 1) {
 			sb.append(Strings.repeat(",?", count-1));
 		}
 		sb.append(")");
 		_insertSql = sb.toString();
-		// Prepare query for find by id:
+		// Prepare delete SQL:
+		_deleteSql = x("DELETE FROM {} WHERE id = ?", tableName());
+		// Prepare find by id query:
 		_findById = query().where(id.equalTo());
 		// Add the natural key as a constraint:
 		Property<?>[] key = naturalKey();
@@ -263,6 +272,7 @@ public abstract class Entity<I extends Instance<?>> {
 		// Check unique constraints:
 		_checkUniqueConstraintsFor(i, c);
 		// Insert instance:
+		logger().log(info("inseting {}", instanceName()));
 		Long id = c.insert(_insertSql, sqlTypes, args);
 		i.primaryKey(id);
 		i.flush();
@@ -276,6 +286,7 @@ public abstract class Entity<I extends Instance<?>> {
 		if(!i.updated()) {
 			return false;
 		}
+		logger().log(info("updating {} with id {}", instanceName(), i.id()));
 		_checkUniqueConstraintsFor(i, c);
 		i.update(timeUpdated, Timestamp.from(Instant.now()), false);
 		StringBuilder sb = new StringBuilder();
@@ -293,6 +304,42 @@ public abstract class Entity<I extends Instance<?>> {
 		c.update(sb.toString());
 		i.flush();
 		return true;
+	}
+	
+	public void delete(I i, Connection c) {
+		Checker.nil(i);
+		Checker.nil(c);
+		_checkLoadedInto(c);
+		_checkPersisted(i);
+		logger().log(info("deleting {} with id {}", instanceName(), i.id()));
+		// Process dependencies:
+		for(Dependency d : _dependencies) {
+			logger().log(info("found dependency with {}", d.entity().name()));
+			Iterator<Instance<?>> it = d.instancesRelatedTo(i, c).iterate();
+			while(it.hasNext()) {
+				Instance<?> related = it.next();
+				OnDelete onDeleteAction = d.foreignKey().onDeleteAction();
+				if(onDeleteAction == OnDelete.CASCADE) {
+					// TODO use a multiple delete statement for better performance
+					d.entity().delete(related, c);
+				}
+				else if(onDeleteAction == OnDelete.RESTRICT) {
+					// TODO onDeleteException?? RestictConstraintException?
+					throw new RuntimeException(x("{} cannot be deleted because there is a related {}", related.entity().instanceName(), instanceName()));
+				}
+				else if(onDeleteAction == OnDelete.SET_NULL) {
+					// TODO use a multiple update statement for better performance
+					d.entity().update(related.set(d.foreignKey(), null), c);
+				}
+				else {
+					throw new IntegrityException(onDeleteAction);
+				}
+			}
+		}
+		// Delete the instance:
+		int[] types = new int[] {id.typeMapping().sqlType()};
+		Object[] args = new Object[] {i.id()};
+		c.delete(_deleteSql, types, args);
 	}
 
 	private void _checkPersisted(I i) {
@@ -376,35 +423,7 @@ public abstract class Entity<I extends Instance<?>> {
 
 	public void delete(I i) {
 		Checker.checkNull(i);
-		_checkLoaded();
-		_checkPersisted(i);
-		getLogger().log(info("deleting {} with id {}", getInstanceName(), i.getId()));
-		// Process dependencies:
-		for(Dependency d : _dependencies) {
-			getLogger().log(info("found dependency in {}", d.getEntity().getName()));
-			Iterator<Instance<?>> it = d.findInstancesRelatedTo(i).iterate();
-			while(it.hasNext()) {
-				Instance<?> related = it.next();
-				OnDelete onDeleteAction = d.getForeignKey().getOnDeleteAction();
-				if(onDeleteAction == Property.OnDelete.CASCADE) {
-					d.getEntity().delete(related);
-				}
-				else if(onDeleteAction == Property.OnDelete.RESTRICT) {
-					// TODO onDeleteException??
-					throw new RuntimeException(x("{} cannot be deleted because there is a related {}", related.getEntity().getInstanceName(), getInstanceName()));
-				}
-				else if(onDeleteAction == Property.OnDelete.SET_NULL) {
-					related.setValue(d.getForeignKey(), null);
-					d.getEntity().update(related);
-				}
-				else {
-					throw new IntegrityException(onDeleteAction);
-				}
-			}
-		}
-		// Delete the instance:
-		getLogger().log(info("running query: DELETE FROM {} WHERE id = {}", getName(), i.getId()));
-		_ds.delete(i.getGoogleEntity().getKey());
+
 	}
 
 	public void deleteWhere(Predicate ... params) {

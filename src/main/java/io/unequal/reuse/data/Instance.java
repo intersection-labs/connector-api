@@ -1,11 +1,10 @@
 package io.unequal.reuse.data;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-
 import io.unequal.reuse.util.Arrays;
 import io.unequal.reuse.util.Checker;
 import io.unequal.reuse.util.HashKey;
@@ -19,7 +18,7 @@ import static io.unequal.reuse.util.Util.*;
 public abstract class Instance<E extends Entity<?>> {
 
 	// TYPE:
-	static <I extends Instance<?>> I newFrom(Class<I> c) {
+	static <I extends Instance<?>> I create(Class<I> c) {
 		Checker.nil(c);
 		try {
 			return Reflection.object(c);
@@ -86,8 +85,8 @@ public abstract class Instance<E extends Entity<?>> {
 	public abstract String describe(Connection c);
 
 	public final Long id() { return get(entity().id); }
-	public final Date timeCreated() { return get(entity().timeCreated); }
-	public final Date timeUpdated() { return get(entity().timeUpdated); }
+	public final Timestamp timeCreated() { return get(entity().timeCreated); }
+	public final Timestamp timeUpdated() { return get(entity().timeUpdated); }
 
 	public <T> T get(Property<T> prop, Connection c) {
 		Checker.nil(prop);
@@ -108,7 +107,7 @@ public abstract class Instance<E extends Entity<?>> {
 		return get(prop, (Connection)null);
 	}
 
-	protected <T> void set(Property<T> prop, T value) {
+	protected <T> Instance<E> set(Property<T> prop, T value) {
 		Checker.nil(prop);
 		_checkProperty(prop);
 		// Prevent updates to internal properties:
@@ -152,6 +151,17 @@ public abstract class Instance<E extends Entity<?>> {
 		_updates.put(prop,  unwrapped);
 		// Check if the property is being set to its current value:
 		_removeIfNotUpdated(prop, unwrapped);
+		return this;
+	}
+	
+	// For QueryResult:
+	Object unwrapped(Property<?> prop) {
+		Checker.nil(prop);
+		Object value = _updates.get(prop);
+		if(value != null) {
+			return value;
+		}
+		return _values.get(prop);
 	}
 
 	public boolean updated() {

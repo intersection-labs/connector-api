@@ -5,11 +5,13 @@ public class Dependency {
 
 	private final Entity<Instance<?>> _entity;
 	private final Property<?> _foreignKey;
+	private final Query<Instance<?>> _instancesRelated;
 
 	// For Entity:
 	Dependency(Entity<Instance<?>> entity, Property<?> foreignKey) {
 		_entity = entity;
 		_foreignKey = foreignKey;
+		_instancesRelated = _entity.query().where(_foreignKey.equalTo());
 	}
 	
 	public Entity<Instance<?>> entity() {
@@ -24,7 +26,7 @@ public class Dependency {
 		return "Dependency: "+_foreignKey.fullName();
 	}
 	
-	//public QueryResult<Instance<?>> findInstancesRelatedTo(Instance<?> i) {
-	//	return _entity.findWhere(new Predicate(_foreignKey, Predicate.Operator.EQUAL, i));
-	//}
+	public QueryResult<Instance<?>> instancesRelatedTo(Instance<?> i, Connection c) {
+		return c.run(_instancesRelated, i.get(_foreignKey));
+	}
 }

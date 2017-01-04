@@ -8,7 +8,7 @@ import io.unequal.reuse.data.QueryResult;
 import io.unequal.reuse.util.Checker;
 import io.unequal.reuse.data.ActiveEntity;
 import io.unequal.reuse.data.Property;
-import io.unequal.reuse.data.Property.Constraint;
+import io.unequal.reuse.data.Property.Flag;
 import io.unequal.reuse.data.Connection;
 
 
@@ -30,36 +30,76 @@ public class UserFields extends ActiveEntity<UserField> {
 	public final Property<String> label;
 	public final Property<Boolean> validated;
 	// Queries:
-	private Query<UserField> _email;
-	private Query<UserField> _phoneNumber;
-	private Query<UserField> _listFor;
+	private Query<UserField> _allFor;
+	private Query<UserField> _allWithType;
+	private Query<UserField> _validated;
+	private Query<UserField> _withValue;
 
 	private UserFields() {
 		super("user_fields");
-		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Constraint.MANDATORY, Constraint.READ_ONLY);
-		type = property(FieldType.class, "type", "type", Constraint.MANDATORY, Constraint.READ_ONLY);
-		value = property(String.class, "value", "value", Constraint.MANDATORY, Constraint.UNIQUE);
+		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
+		type = property(FieldType.class, "type", "type", Flag.MANDATORY, Flag.READ_ONLY);
+		value = property(String.class, "value", "value", Flag.MANDATORY, Flag.UNIQUE);
 		label = property(String.class, "label", "label");
-		validated = property(Boolean.class, "validated", "validated", Boolean.FALSE, Constraint.MANDATORY);
+		validated = property(Boolean.class, "validated", "validated", Boolean.FALSE, Flag.MANDATORY);
 	}
 
 	public Property<?>[] naturalKey() {
 		return new Property<?>[] { user, value };
 	}
-	
-	public UserField email(String email, boolean val, Connection c) {
-		Checker.empty(email);
+
+	public QueryResult<UserField> allFor(User userArg, Connection c) {
+		Checker.nil(userArg);
 		Checker.nil(c);
-		if(_email == null) {
-			_email = query()
-				.where(value.equalTo())
-				.where(validated.equalTo())
-				.where(type.equalTo(FieldType.EMAIL))
+		if(_allFor == null) {
+			_allFor = query()
+				.where(user.equalTo())
 				.where(active.equalTo(true));
 		}
-		return c.run(_email, email, val).single();
+		return c.run(_allFor, userArg);
 	}
 
+	public QueryResult<UserField> allFor(User userArg, FieldType typeArg, Connection c) {
+		Checker.nil(userArg);
+		Checker.nil(typeArg);
+		Checker.nil(c);
+		if(_allWithType == null) {
+			_allWithType = query()
+				.where(user.equalTo())
+				.where(type.equalTo())
+				.where(active.equalTo(true));
+		}
+		return c.run(_allWithType, userArg, typeArg);
+	}
+
+	public QueryResult<UserField> validated(User userArg, FieldType typeArg, Connection c) {
+		Checker.nil(userArg);
+		Checker.nil(typeArg);
+		Checker.nil(c);
+		if(_validated == null) {
+			_validated = query()
+				.where(user.equalTo())
+				.where(type.equalTo())
+				.where(active.equalTo(true))
+				.where(validated.equalTo(true));
+		}
+		return c.run(_validated, userArg, typeArg);
+	}
+	
+	public UserField with(String valueArg, FieldType typeArg, Connection c) {
+		Checker.empty(valueArg);
+		Checker.nil(typeArg);
+		Checker.nil(c);
+		if(_withValue == null) {
+			_withValue = query()
+				.where(value.equalTo())
+				.where(type.equalTo())
+				.where(active.equalTo(true));
+		}
+		return c.run(_withValue, valueArg, typeArg).single();
+	}
+
+	/*
 	public QueryResult<UserField> phoneNumber(String number, boolean val, Connection c) {
 		Checker.empty(number);
 		Checker.nil(c);
@@ -81,4 +121,5 @@ public class UserFields extends ActiveEntity<UserField> {
 		}
 		return c.run(_listFor, u);
 	}
+	*/
 }

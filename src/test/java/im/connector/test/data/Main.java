@@ -65,7 +65,7 @@ public class Main {
 		Checker.empty(lastName);
 		Checker.empty(pEmail);
 		try(Connection c = _db.connect()) {
-			User user = Users.get().withEmail(pEmail, c);
+			User user = Users.get().with(pEmail, FieldType.EMAIL, c);
 			if(recreate) {
 				if(user != null) {
 					//Users.get().delete(user);
