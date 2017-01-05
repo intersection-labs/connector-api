@@ -98,7 +98,7 @@ class TypeMappings {
 		});
 		// Constant:
 		_register(Constant.class, new TypeMapping<Constant,Integer>(Constant.class, Integer.class, Types.INTEGER) {
-			public Object wrap(Object arg, Class<?> type, Connection c) {
+			public Constant wrap(Object arg, Class<?> type, Connection c) {
 				return Constant.valueOf(type, (Integer)arg);
 			}
 			public Object unwrap(Object arg) {

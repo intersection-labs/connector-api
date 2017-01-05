@@ -2,8 +2,8 @@ package io.unequal.reuse.data;
 
 abstract class TypeMapping<W, U> {
 
-	private final Class<?> _wrappedType;
-	private final Class<?> _unwrappedType;
+	private final Class<W> _wrappedType;
+	private final Class<U> _unwrappedType;
 	private final int _sqlType;
 
 	protected TypeMapping(Class<W> wrappedType, Class<U> unrappedType, int sqlType) {
@@ -12,11 +12,11 @@ abstract class TypeMapping<W, U> {
 		_sqlType = sqlType;
 	}
 	
-	public Class<?> wrappedType() {
+	public Class<W> wrappedType() {
 		return _wrappedType;
 	}
 
-	public Class<?> unwrappedType() {
+	public Class<U> unwrappedType() {
 		return _unwrappedType;
 	}
 
@@ -24,8 +24,9 @@ abstract class TypeMapping<W, U> {
 		return _sqlType;
 	}
 
-	public Object wrap(Object value, Class<?> type, Connection c) {
-		return value;
+	@SuppressWarnings("unchecked")
+	public W wrap(Object value, Class<?> type, Connection c) {
+		return (W)value;
 	}
 
 	public Object unwrap(Object arg) {

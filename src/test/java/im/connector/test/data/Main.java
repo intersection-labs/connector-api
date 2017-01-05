@@ -15,7 +15,7 @@ public class Main {
 	public static void main(String[] args) {
 		Main tester = new Main();
 		tester.test();
-		out.println("done.");
+		out.println("All done!");
 	}
 
 	// INSTANCE:
