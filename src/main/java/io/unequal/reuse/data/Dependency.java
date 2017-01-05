@@ -27,6 +27,6 @@ public class Dependency {
 	}
 	
 	public QueryResult<Instance<?>> instancesRelatedTo(Instance<?> i, Connection c) {
-		return c.run(_instancesRelated, i.get(_foreignKey));
+		return c.run(_instancesRelated, i);
 	}
 }

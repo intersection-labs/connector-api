@@ -172,13 +172,6 @@ public abstract class Instance<E extends Entity<?>> {
 		return _persisted;
 	}
 	
-	// For Connection:
-	void primaryKey(Long key) {
-		Checker.min(key, 1);
-		_values.put(entity().id, key);
-		_persisted = true;
-	}
-
 	// For Entity:
 	Set<Map.Entry<Property<?>,Object>> updates() {
 		return new HashMap<>(_updates).entrySet();
@@ -218,6 +211,9 @@ public abstract class Instance<E extends Entity<?>> {
 		}
 		else {
 			_updates.put(prop, value);
+		}
+		if(prop == entity().id) {
+			_persisted = true;
 		}
 	}
 	

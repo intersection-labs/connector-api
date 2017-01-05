@@ -6,6 +6,7 @@ package im.connector.api.data;
 import java.util.Date;
 import javax.servlet.http.Cookie;
 import io.unequal.reuse.data.Entity;
+import io.unequal.reuse.data.Generators;
 import io.unequal.reuse.data.Property;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.data.Query;
@@ -50,7 +51,7 @@ public class Sessions extends Entity<Session> {
 		super("sessions");
 		uuid = property(String.class, "uuid", "uuid", Flag.MANDATORY, Flag.UNIQUE, Flag.READ_ONLY);
 		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Flag.MANDATORY);
-		timeLastAccessed = property(Date.class, "timeLastAccessed", "time_last_accessed");
+		timeLastAccessed = property(Date.class, "timeLastAccessed", "time_last_accessed", new Generators.Now(), Flag.MANDATORY);
 		timeClosed = property(Date.class, "timeClosed", "time_closed");
 		closeReason = property(String.class, "closeReason", "close_reason");
 	}

@@ -50,7 +50,7 @@ public class RestServer {
 		}
 	}
 
-	public void run() throws Exception {
+	public void serve() throws Exception {
 		_server.start();
 		_server.join();
 	}

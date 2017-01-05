@@ -41,6 +41,6 @@ public class Main {
 		server.endpoint(new SyncListEndpointV1(), "/sync/list/v1");
 		//server.endpoint(new SyncViewEndpointV1(), "/sync/view/v1");
 		server.endpoint(new ToolsSendEmailEndpointV1(), "/tools/send-email/v1");
-		server.run();
+		server.serve();
 	}
 }

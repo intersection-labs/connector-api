@@ -35,12 +35,14 @@ public abstract class Entity<I extends Instance<?>> {
 	private final Set<String> _columns;
 	private final List<Dependency> _dependencies;
 	private final Set<UniqueConstraint> _uConstraints;
-	private Database _db;
 	// Data management:
+	private Database _db;
 	private String _insertSql;
 	private String _deleteSql;
 	private Query<I> _findById;
-	
+	// This flag indicates whether we force on-delete constraints via our code, or let the database do it.
+	// Regardless, we go though related entities to ensure they are not cached after a parent entity is deleted.
+	private final boolean _forceDeleteConstraints = false;
 
 	@SuppressWarnings("unchecked")
 	protected Entity(String tableName) {
@@ -272,8 +274,7 @@ public abstract class Entity<I extends Instance<?>> {
 		_checkUniqueConstraintsFor(i, c);
 		// Insert instance:
 		logger().log(info("inseting {}", instanceName()));
-		Long id = c.insert(_insertSql, sqlTypes, args);
-		i.primaryKey(id);
+		i.update(id, c.insert(_insertSql, sqlTypes, args), true);
 		i.flush();
 	}
 
@@ -319,16 +320,20 @@ public abstract class Entity<I extends Instance<?>> {
 				Instance<?> related = it.next();
 				OnDelete onDeleteAction = d.foreignKey().onDeleteAction();
 				if(onDeleteAction == OnDelete.CASCADE) {
-					// TODO use a multiple delete statement for better performance
-					d.entity().delete(related, c);
+					if(_forceDeleteConstraints) {
+						// TODO use a multiple delete statement for better performance
+						d.entity().delete(related, c);
+					}
 				}
 				else if(onDeleteAction == OnDelete.RESTRICT) {
 					// TODO onDeleteException?? RestictConstraintException?
 					throw new RuntimeException(x("{} cannot be deleted because there is a related {}", related.entity().instanceName(), instanceName()));
 				}
 				else if(onDeleteAction == OnDelete.SET_NULL) {
-					// TODO use a multiple update statement for better performance
-					d.entity().update(related.set(d.foreignKey(), null), c);
+					if(_forceDeleteConstraints) {
+						// TODO use a multiple update statement for better performance
+						d.entity().update(related.set(d.foreignKey(), null), c);
+					}
 				}
 				else {
 					throw new IntegrityException(onDeleteAction);
@@ -394,6 +399,7 @@ public abstract class Entity<I extends Instance<?>> {
 	public I find(Long id, Connection c) {
 		Checker.nil(c);
 		Checker.min(id, 1);
+		_checkLoadedInto(c);
 		return c.run(_findById, id).single();
 	}
 	
