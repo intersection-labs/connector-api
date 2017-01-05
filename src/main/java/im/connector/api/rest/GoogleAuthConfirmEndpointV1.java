@@ -4,8 +4,7 @@
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.rest;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import io.unequal.reuse.data.Connection;
@@ -53,7 +52,7 @@ public class GoogleAuthConfirmEndpointV1 extends UserEndpoint {
 		User user = s.user(c);
 		Account account = user.accounts(c).list().get(0);
 		account.accessToken(json.getString("access_token"));
-		account.accessTokenTime(Timestamp.from(Instant.now()));
+		account.accessTokenTime(new Date());
 		// Google access tokens expire after an hour, but since we requested offline access 
 		// we can get a new token without user involvement via the refresh token
 		account.refreshToken(json.getString("refresh_token"));

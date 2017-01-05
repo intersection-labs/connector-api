@@ -1,6 +1,6 @@
 package io.unequal.reuse.data;
 import java.sql.Types;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import io.unequal.reuse.util.Strings;
@@ -71,8 +71,8 @@ class TypeMappings {
 		_register(Long.class, new TypeMapping<Long,Long>(Long.class, Long.class, Types.BIGINT) {});
 		// Double:
 		_register(Double.class, new TypeMapping<Double,Double>(Double.class, Double.class, Types.DOUBLE) {});
-		// Timestamp:
-		_register(Timestamp.class, new TypeMapping<Timestamp,Timestamp>(Timestamp.class, Timestamp.class, Types.TIMESTAMP) {});
+		// Date:
+		_register(Date.class, new TypeMapping<Date,Date>(Date.class, Date.class, Types.TIMESTAMP) {});
 		// Constant:
 		_register(Constant.class, new TypeMapping<Constant,Integer>(Constant.class, Integer.class, Types.INTEGER) {
 			public Object wrap(Object arg, Class<?> type, Connection c) {

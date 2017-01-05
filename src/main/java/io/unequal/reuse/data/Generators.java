@@ -1,6 +1,5 @@
 package io.unequal.reuse.data;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 
 
 public interface Generators {
@@ -19,7 +18,7 @@ public interface Generators {
 	}
 
 	// TODO substitute for regexp generator
-	public class Now implements Generator<Timestamp> {
-		public Timestamp generate() { return Timestamp.from(Instant.now()); }
+	public class Now implements Generator<Date> {
+		public Date generate() { return new Date(); }
 	}
 }

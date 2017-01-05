@@ -1,5 +1,5 @@
 package im.connector.api.data;
-import java.sql.Timestamp;
+import java.util.Date;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.data.Query;
@@ -26,8 +26,8 @@ public class SyncEntries extends Entity<SyncEntry> {
 	// INSTANCE:
 	// Properties:
 	public final Property<Account> account;
-	public final Property<Timestamp> started;
-	public final Property<Timestamp> completed;
+	public final Property<Date> started;
+	public final Property<Date> completed;
 	public final Property<Integer> updateCount;
 	// Queries:
 	private Query<SyncEntry> _pageFor = null;
@@ -35,8 +35,8 @@ public class SyncEntries extends Entity<SyncEntry> {
 	public SyncEntries() {
 		super("sync_entries");
 		account = property(Account.class, "account", "account_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
-		started = property(Timestamp.class, "started", "started", Flag.MANDATORY, Flag.READ_ONLY);
-		completed = property(Timestamp.class, "completed", "completed");
+		started = property(Date.class, "started", "started", Flag.MANDATORY, Flag.READ_ONLY);
+		completed = property(Date.class, "completed", "completed");
 		updateCount = property(Integer.class, "updateCount", "update_count");
 	}
 

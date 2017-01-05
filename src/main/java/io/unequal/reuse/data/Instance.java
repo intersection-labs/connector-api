@@ -1,5 +1,5 @@
 package io.unequal.reuse.data;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
@@ -85,8 +85,8 @@ public abstract class Instance<E extends Entity<?>> {
 	public abstract String describe(Connection c);
 
 	public final Long id() { return get(entity().id); }
-	public final Timestamp timeCreated() { return get(entity().timeCreated); }
-	public final Timestamp timeUpdated() { return get(entity().timeUpdated); }
+	public final Date timeCreated() { return get(entity().timeCreated); }
+	public final Date timeUpdated() { return get(entity().timeUpdated); }
 
 	public <T> T get(Property<T> prop, Connection c) {
 		Checker.nil(prop);

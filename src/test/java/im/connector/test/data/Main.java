@@ -46,6 +46,7 @@ public class Main {
 		
 		
 		
+		User lisa = _addUser("Lisa", "Smith", "lisa.connector@gmail.com", "lisa.smith@innoventive.com", false);
 		
 		/*
 		boolean recreate = false;

@@ -1,5 +1,5 @@
 package im.connector.api.data;
-import java.sql.Timestamp;
+import java.util.Date;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
 import io.unequal.reuse.data.Property.Flag;
@@ -20,13 +20,13 @@ public class Invitations extends Entity<Invitation> {
 	// INSTANCE:
 	public final Property<User> from;
 	public final Property<User> to;
-	public final Property<Timestamp> timeAccepted;
+	public final Property<Date> timeAccepted;
 
 	public Invitations() {
 		super("invitations");
 		from = property(User.class, "from", "from_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
 		to = property(User.class, "to", "to_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
-		timeAccepted = property(Timestamp.class, "timeAccepted", "time_accepted");
+		timeAccepted = property(Date.class, "timeAccepted", "time_accepted");
 	}
 
 	public Property<?>[] naturalKey() { return new Property<?>[] { from, to }; }

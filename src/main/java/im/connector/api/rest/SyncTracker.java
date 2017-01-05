@@ -1,6 +1,5 @@
 package im.connector.api.rest;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import io.unequal.reuse.data.Connection;
@@ -24,7 +23,7 @@ public class SyncTracker {
 
 	private final Account _account;
 	private final Connection _c;
-	private Timestamp _started;
+	private Date _started;
 	private int _updateCount;
 	private SyncEntry _entry;
 	private final Map<HashKey,SyncContactUpdate> _cache;
@@ -38,10 +37,10 @@ public class SyncTracker {
 	}
 
 	public void start() {
-		_started = Timestamp.from(Instant.now());
+		_started = new Date();
 	}
 
-	public void complete(Timestamp completed) {
+	public void complete(Date completed) {
 		if(_entry != null) {
 			_entry.completed(completed);
 			_entry.updateCount(_updateCount);

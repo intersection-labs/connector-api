@@ -4,8 +4,7 @@
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import io.unequal.reuse.data.Constant;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
@@ -49,8 +48,8 @@ public class Accounts extends Entity<Account> {
 	public final Property<UserField> email;
 	public final Property<String> refreshToken;
 	public final Property<String> accessToken;
-	public final Property<Timestamp> accessTokenTime;
-	public final Property<Timestamp> lastSyncTime;
+	public final Property<Date> accessTokenTime;
+	public final Property<Date> lastSyncTime;
 	// Queries:
 	private Query<Account> _listFor;
 	
@@ -61,8 +60,8 @@ public class Accounts extends Entity<Account> {
 		email = property(UserField.class, "email", "email_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY, Flag.UNIQUE);
 		refreshToken = property(String.class, "refreshToken", "refresh_token");
 		accessToken = property(String.class, "accessToken", "access_token");
-		accessTokenTime = property(Timestamp.class, "accessTokenTime", "access_token_time");
-		lastSyncTime = property(Timestamp.class, "lastSyncTime", "last_sync_time");
+		accessTokenTime = property(Date.class, "accessTokenTime", "access_token_time");
+		lastSyncTime = property(Date.class, "lastSyncTime", "last_sync_time");
 	}
 
 	public Property<?>[] naturalKey() { return new Property<?>[] { user, email }; }
@@ -99,7 +98,7 @@ public class Accounts extends Entity<Account> {
 			logger().log(info("retrived new access token: {}", accessToken));
 			// Save new access token:
 			account.accessToken(accessToken);
-			account.accessTokenTime(Timestamp.from(Instant.now()));
+			account.accessTokenTime(new Date());
 			account.accessToken(accessToken);
 			update(account, c);
 		}

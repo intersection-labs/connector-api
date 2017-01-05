@@ -3,7 +3,7 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
-import java.sql.Timestamp;
+import java.util.Date;
 import javax.servlet.http.Cookie;
 import io.unequal.reuse.data.Entity;
 import io.unequal.reuse.data.Property;
@@ -40,8 +40,8 @@ public class Sessions extends Entity<Session> {
 	// INSTANCE:
 	public final Property<String> uuid;
 	public final Property<User> user;
-	public final Property<Timestamp> timeLastAccessed;
-	public final Property<Timestamp> timeClosed;
+	public final Property<Date> timeLastAccessed;
+	public final Property<Date> timeClosed;
 	public final Property<String> closeReason;
 	// Queries:
 	private Query<Session> _uuid;
@@ -50,8 +50,8 @@ public class Sessions extends Entity<Session> {
 		super("sessions");
 		uuid = property(String.class, "uuid", "uuid", Flag.MANDATORY, Flag.UNIQUE, Flag.READ_ONLY);
 		user = property(User.class, "user", "user_id", Property.OnDelete.CASCADE, Flag.MANDATORY);
-		timeLastAccessed = property(Timestamp.class, "timeLastAccessed", "time_last_accessed");
-		timeClosed = property(Timestamp.class, "timeClosed", "time_closed");
+		timeLastAccessed = property(Date.class, "timeLastAccessed", "time_last_accessed");
+		timeClosed = property(Date.class, "timeClosed", "time_closed");
 		closeReason = property(String.class, "closeReason", "close_reason");
 	}
 

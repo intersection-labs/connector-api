@@ -1,5 +1,5 @@
 package im.connector.api.data;
-import java.sql.Timestamp;
+import java.util.Date;
 import io.unequal.reuse.data.Instance;
 import io.unequal.reuse.data.Connection;
 
@@ -21,6 +21,6 @@ public class Invitation extends Instance<Invitations> {
 	// Getters and setters:
 	public User from(Connection c) { return get(entity().from, c); }
 	public User to(Connection c) { return get(entity().to, c); }
-	public Timestamp timeAccepted() { return get(entity().timeAccepted); }
-	public Invitation timeAccepted(Timestamp value) { set(entity().timeAccepted, value); return this; }
+	public Date timeAccepted() { return get(entity().timeAccepted); }
+	public Invitation timeAccepted(Date value) { set(entity().timeAccepted, value); return this; }
 }

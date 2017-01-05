@@ -1,6 +1,5 @@
 package io.unequal.reuse.data;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -27,8 +26,8 @@ public abstract class Entity<I extends Instance<?>> {
 	private final Logger _logger;
 	// Data structure:
 	public final Property<Long> id;
-	public final Property<Timestamp> timeCreated;
-	public final Property<Timestamp> timeUpdated;
+	public final Property<Date> timeCreated;
+	public final Property<Date> timeUpdated;
 	private final String _tableName;
 	private final Class<I> _instanceType;
 	private final Map<String,Property<?>> _propertyMap;
@@ -57,8 +56,8 @@ public abstract class Entity<I extends Instance<?>> {
 		_uConstraints = new HashSet<>();
 		// Common properties:
 		id = property(Long.class, "id", "id", Flag.MANDATORY, Flag.AUTO_GENERATED, Flag.READ_ONLY);
-		timeCreated = property(Timestamp.class, "timeCreated", "time_created", new Generators.Now(), Flag.MANDATORY, Flag.READ_ONLY);
-		timeUpdated = property(Timestamp.class, "timeUpdated", "time_updated", new Generators.Now(), Flag.MANDATORY, Flag.READ_ONLY);		
+		timeCreated = property(Date.class, "timeCreated", "time_created", new Generators.Now(), Flag.MANDATORY, Flag.READ_ONLY);
+		timeUpdated = property(Date.class, "timeUpdated", "time_updated", new Generators.Now(), Flag.MANDATORY, Flag.READ_ONLY);		
 		// Data management:
 		_insertSql = null;
 		_deleteSql = null;
@@ -288,7 +287,7 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 		logger().log(info("updating {} with id {}", instanceName(), i.id()));
 		_checkUniqueConstraintsFor(i, c);
-		i.update(timeUpdated, Timestamp.from(Instant.now()), false);
+		i.update(timeUpdated, new Date(), false);
 		StringBuilder sb = new StringBuilder();
 		sb.append("UPDATE ").append(tableName()).append(" SET ");
 		Iterator<Entry<Property<?>,Object>> it = i.updates().iterator();

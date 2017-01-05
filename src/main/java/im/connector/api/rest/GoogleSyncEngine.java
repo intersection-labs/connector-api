@@ -2,8 +2,7 @@ package im.connector.api.rest;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -92,7 +91,7 @@ class GoogleSyncEngine extends SyncEngine {
 		// Retrieve all Google contacts modified after the last sync date:
 		Query query = new Query(new URL(GoogleService.GET_ALL_CONTACTS_URL));
 		query.setMaxResults(1000);
-		Timestamp lastSynced = _account.lastSyncTime();
+		Date lastSynced = _account.lastSyncTime();
 		if(lastSynced != null) {
 			query.setUpdatedMin(new DateTime(lastSynced));
 		}
@@ -199,7 +198,7 @@ class GoogleSyncEngine extends SyncEngine {
 			}
 		}
 		// Save last sync date:
-		_account.lastSyncTime(Timestamp.from(Instant.now()));
+		_account.lastSyncTime(new Date());
 		Accounts.get().update(account, c);
 		_tracker.complete(account.lastSyncTime());
 		out.println(x("Completed processing account {}.", _account.describe(c)));		
@@ -381,7 +380,7 @@ class GoogleSyncEngine extends SyncEngine {
 				if(!deleted.isEmpty()) {
 					NeedsDelete:
 					for(ContactField df : deleted) {
-						if(df.timeUpdated().after(new Timestamp(entry.getUpdated().getValue()))) {
+						if(df.timeUpdated().after(new Date(entry.getUpdated().getValue()))) {
 							toDelete = true;
 							gFieldsIt.remove();
 							googleNeedsUpdate = true;
@@ -446,8 +445,8 @@ class GoogleSyncEngine extends SyncEngine {
 		return googleNeedsUpdate;
 	}
 	
-	private boolean _googleWins(ContactEntry entry, Timestamp timestamp) {
-		return timestamp.before(new Timestamp(entry.getUpdated().getValue()));		
+	private boolean _googleWins(ContactEntry entry, Date timestamp) {
+		return timestamp.before(new Date(entry.getUpdated().getValue()));		
 	}
 
 	private String _getOrgFrom(ContactEntry gEntry) {

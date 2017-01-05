@@ -3,8 +3,7 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
-import java.sql.Timestamp;
-import java.time.Instant;
+import java.util.Date;
 import io.unequal.reuse.data.Instance;
 import io.unequal.reuse.data.Connection;
 
@@ -26,19 +25,19 @@ public class Session extends Instance<Sessions> {
 	public String uuid() { return get(entity().uuid); }
 	public User user(Connection c) { return get(entity().user, c); }
 	public Session user(User value) { set(entity().user, value); return this; }
-	public Timestamp timeLastAccessed() { return get(entity().timeLastAccessed); }
-	public Timestamp timeClosed() { return get(entity().timeClosed); }
+	public Date timeLastAccessed() { return get(entity().timeLastAccessed); }
+	public Date timeClosed() { return get(entity().timeClosed); }
 	public String closeReason() { return get(entity().closeReason); }
 
 	// Custom methods:
 	public Session accessed() {
-		set(entity().timeLastAccessed, Timestamp.from(Instant.now()));
+		set(entity().timeLastAccessed, new Date());
 		return this;
 	}
 
 	public Session close(String closeReason) {
 		set(entity().closeReason, closeReason);
-		Timestamp now = Timestamp.from(Instant.now());
+		Date now = new Date();
 		set(entity().timeClosed, now);
 		set(entity().timeLastAccessed, now);
 		return this;
