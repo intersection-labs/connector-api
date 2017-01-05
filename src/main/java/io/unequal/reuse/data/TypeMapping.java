@@ -31,4 +31,6 @@ abstract class TypeMapping<W, U> {
 	public Object unwrap(Object arg) {
 		return arg;
 	}
+	
+	public abstract int compare(Object a, Object b);
 }

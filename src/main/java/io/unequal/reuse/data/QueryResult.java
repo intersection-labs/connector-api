@@ -36,37 +36,12 @@ public class QueryResult<I extends Instance<?>> {
 	}
 	
 	public QueryResult<I> sortByAsc(Property<?> prop) {
-		Collections.sort(_results, new _InstanceComparator(prop, Direction.ASC));
+		Collections.sort(_results, new InstanceComparator<I>(prop, Direction.ASC));
 		return this;
 	}
 
 	public QueryResult<I> sortByDesc(Property<?> prop) {
-		Collections.sort(_results, new _InstanceComparator(prop, Direction.DESC));
+		Collections.sort(_results, new InstanceComparator<I>(prop, Direction.DESC));
 		return this;
-	}
-	
-	private class _InstanceComparator implements Comparator<I> {
-		
-		private final Property<?> _prop;
-		private final int _multiplier;
-		
-		public _InstanceComparator(Property<?> prop, Direction d) {
-			_prop = prop;
-			if(d == Direction.ASC) {
-				_multiplier = 1;
-			}
-			else if(d == Direction.DESC) {
-				_multiplier = -1;
-			}
-			else {
-				throw new IntegrityException(d);
-			}
-		}
-
-		public int compare(I a, I b) {
-			//a.unwrapped(_prop);
-			//return -1 * _multiplier;
-			throw new RuntimeException();
-		}
 	}
 }

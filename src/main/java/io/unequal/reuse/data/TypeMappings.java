@@ -62,17 +62,40 @@ class TypeMappings {
 				}
 				return s;
 			}
+			public int compare(Object a, Object b) {
+				return ((String)a).compareTo((String)b);
+			}
 		});
 		// Boolean:
-		_register(Boolean.class, new TypeMapping<Boolean,Boolean>(Boolean.class, Boolean.class, Types.BOOLEAN) {});
+		_register(Boolean.class, new TypeMapping<Boolean,Boolean>(Boolean.class, Boolean.class, Types.BOOLEAN) {
+			public int compare(Object a, Object b) {
+				return ((Boolean)a).compareTo((Boolean)b);
+			}
+		});
 		// Integer:
-		_register(Integer.class, new TypeMapping<Integer,Integer>(Integer.class, Integer.class, Types.INTEGER) {});
+		_register(Integer.class, new TypeMapping<Integer,Integer>(Integer.class, Integer.class, Types.INTEGER) {
+			public int compare(Object a, Object b) {
+				return ((Integer)a).compareTo((Integer)b);
+			}
+		});
 		// Long:
-		_register(Long.class, new TypeMapping<Long,Long>(Long.class, Long.class, Types.BIGINT) {});
+		_register(Long.class, new TypeMapping<Long,Long>(Long.class, Long.class, Types.BIGINT) {
+			public int compare(Object a, Object b) {
+				return ((Long)a).compareTo((Long)b);
+			}
+		});
 		// Double:
-		_register(Double.class, new TypeMapping<Double,Double>(Double.class, Double.class, Types.DOUBLE) {});
+		_register(Double.class, new TypeMapping<Double,Double>(Double.class, Double.class, Types.DOUBLE) {
+			public int compare(Object a, Object b) {
+				return ((Double)a).compareTo((Double)b);
+			}
+		});
 		// Date:
-		_register(Date.class, new TypeMapping<Date,Date>(Date.class, Date.class, Types.TIMESTAMP) {});
+		_register(Date.class, new TypeMapping<Date,Date>(Date.class, Date.class, Types.TIMESTAMP) {
+			public int compare(Object a, Object b) {
+				return ((Date)a).compareTo((Date)b);
+			}
+		});
 		// Constant:
 		_register(Constant.class, new TypeMapping<Constant,Integer>(Constant.class, Integer.class, Types.INTEGER) {
 			public Object wrap(Object arg, Class<?> type, Connection c) {
@@ -80,6 +103,9 @@ class TypeMappings {
 			}
 			public Object unwrap(Object arg) {
 				return ((Constant)arg).code();
+			}
+			public int compare(Object a, Object b) {
+				return ((Integer)a).compareTo((Integer)b);
 			}
 		});
 		// Instance:
@@ -89,6 +115,9 @@ class TypeMappings {
 			}
 			public Object unwrap(Object arg) {
 				return ((Instance)arg).id();
+			}
+			public int compare(Object a, Object b) {
+				return ((Long)a).compareTo((Long)b);
 			}
 		});
 	}
