@@ -13,12 +13,11 @@ public class Main {
 		// Load config:
 		App.loadConfig();
 		// Load database:
-		boolean local = App.env() == Env.DEV;
-		Database db = new Database(App.databaseUrl(), local);
+		Database db = new Database(App.databaseUrl(), App.env() == Env.DEV);
 		db.load(new ConnectorModel());
 		// Configure server:
 		Settings settings = new Settings();
-		settings.port(App.url().getPort());
+		settings.port(App.port());
 		settings.staticFiles("/public");
 		settings.database(db);
 		RestServer server = new RestServer(settings);
