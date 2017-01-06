@@ -8,24 +8,10 @@ import static io.unequal.reuse.util.Util.*;
 
 public class Config {
 
-	// TYPE:
-	private final static class SingletonHolder {
-		private final static Config instance = new Config();
-	}
-
-	public static Config get() {
-		return SingletonHolder.instance;
-	}
-
-	// INSTANCE:
-	private final Map<String,Object> _values;
-
-	private Config() {
-		_values = new HashMap<>();
-	}
+	private static final Map<String,Object> _values = new HashMap<>();
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Object load(String name, Class<?> type) {
+	public static Object load(String name, Class<?> type) {
 		Checker.empty(name);
 		if(_values.containsKey(name)) {
 			throw new IllegalArgumentException(x("configuration property named '{}' has already been loaded", name));
@@ -67,7 +53,7 @@ public class Config {
 		return converted;
 	}
 	
-	public Object get(String name) {
+	public static Object get(String name) {
 		Checker.empty(name);
 		return _values.get(name.toLowerCase());
 	}

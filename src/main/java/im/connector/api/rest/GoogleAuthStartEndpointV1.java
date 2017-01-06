@@ -21,7 +21,7 @@ public class GoogleAuthStartEndpointV1 extends UserEndpoint {
 			// Scope = API permissions that we are requesting:
 			.append("&scope=https://www.google.com/m8/feeds/")
 			// URL that Google redirects to after authorization:
-			.append(x("&redirect_uri={}:{}{}", App.url(), App.port(), GoogleService.OAUTH_CONFIRM_URL))
+			.append(x("&redirect_uri={}{}", App.url(), GoogleService.OAUTH_CONFIRM_URL))
 			// State is a user-defined parameter to help correlate responses with each other (e.g. session ID)
 			// In our case, because the session ID is included in the response as a cookie, we won't use it.
 			.append("&state=0")
