@@ -18,7 +18,7 @@ public class Main {
 		db.load(new ConnectorModel());
 		// Configure server:
 		Settings settings = new Settings();
-		settings.port(App.port());
+		settings.port(App.url().getPort());
 		settings.staticFiles("/public");
 		settings.database(db);
 		RestServer server = new RestServer(settings);

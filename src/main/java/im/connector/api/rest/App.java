@@ -6,9 +6,9 @@ import io.unequal.reuse.http.Env;
 
 public class App {
 	
-	private static final String _PORT = "PORT";
 	private static final String _ENV = "ENV";
 	private static final String _APP_URL = "APP_URL";
+	private static final String _PORT = "PORT";
 	private static final String _WEB_APP_URL = "WEB_APP_URL";
 	private static final String _DATABASE_URL = "DATABASE_URL";
 	private static final String _GOOGLE_CLIENT_ID = "GOOGLE_CLIENT_ID";
@@ -27,7 +27,7 @@ public class App {
 	public static Integer port() {
 		return (Integer)Config.get(_PORT);
 	}
-	
+
 	public static Env env() {
 		return (Env)Config.get(_ENV);
 	}
