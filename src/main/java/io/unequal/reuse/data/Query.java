@@ -11,6 +11,7 @@ public class Query<I extends Instance<?>> {
 
 	// TYPE:
 	public static enum Direction { ASC, DESC }
+	public static Integer NOT_SET = new Integer(-1);
 
 	// INSTANCE:
 	private final Entity<I> _entity;
@@ -27,8 +28,8 @@ public class Query<I extends Instance<?>> {
 		_predicates = new ArrayList<>();
 		_params = new ArrayList<>();
 		_sort = new ArrayList<>();
-		_limit = -1;
-		_offset = -1;
+		_limit = NOT_SET;
+		_offset = NOT_SET;
 		_sql = null;
 	}
 	
@@ -119,7 +120,12 @@ public class Query<I extends Instance<?>> {
 				}
 			}
 			// TODO order by
-			// TODO limit and offset
+			if(_limit != NOT_SET) {
+				sb.append(" LIMIT ").append(_limit == null ? "?" : _limit);
+			}
+			if(_offset != NOT_SET) {
+				sb.append(" OFFSET ").append(_offset == null ? "?" : _offset);
+			}
 			_sql = sb.toString();
 		}
 		return _sql;

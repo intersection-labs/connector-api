@@ -11,7 +11,7 @@ import im.connector.api.data.*;
 public class ContactsListEndpointV1 extends UserEndpoint {
 
 	public void get(Request req, Session s, Response resp) throws Exception {
-		int page = req.getIntegerParameter("page");
+		int page = req.getIntegerParameter("page", true);
 		Connection c = resp.connection();
 		Iterator<Contact> it = Contacts.get().pageActiveFor(s.user(c), page, c).iterate();
 		JsonObject jContent = new JsonObject();

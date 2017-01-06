@@ -1,5 +1,6 @@
 package io.unequal.reuse.http;
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -103,12 +104,11 @@ class EndpointServlet extends HttpServlet {
 				throw new IntegrityException(method);
 			}
 		}
-		catch(EndpointException ee) {
-			resp.sendError(ee);
-		}
 		catch(Exception e) {
-			// TODO impl
-			throw new RuntimeException(e);
+			resp.sendError(e);
+			if(!EndpointException.class.isAssignableFrom(e.getClass())) {
+				_logger.log(Level.SEVERE, "Unknown error", e);
+			}
 		}
 		finally {
 			resp.close();

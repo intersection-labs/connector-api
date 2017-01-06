@@ -16,7 +16,7 @@ public interface Response extends HttpServletResponse {
 	public void sendOk() throws IOException;
 	public void sendError(StatusCode status, JsonObject content, Object ... params) throws IOException;
 	public void sendError(StatusCode status) throws IOException;
-	public void sendError(EndpointException e) throws IOException;
+	public void sendError(Exception e) throws IOException;
 	public void setLenient(boolean lenient);
 	public Connection connection();
 }

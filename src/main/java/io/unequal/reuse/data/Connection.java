@@ -121,10 +121,10 @@ public class Connection implements AutoCloseable {
 				ps.setObject(i+1, params[i].unwrap(args[i]), params[i].typeMapping().sqlType());
 			}
 			if(query.limit() == null) {
-				ps.setInt(++i, query.limit());
+				ps.setInt(i+1, (int)args[i++]);
 			}
 			if(query.offset() == null) {
-				ps.setInt(++i, query.offset());
+				ps.setInt(i+1, (int)args[i++]);
 			}
 			_logger.info(x("Executing query: {}", ps));
 			ResultSet rs = ps.executeQuery();

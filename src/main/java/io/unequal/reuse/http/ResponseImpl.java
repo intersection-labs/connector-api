@@ -135,17 +135,26 @@ public class ResponseImpl extends HttpServletResponseWrapper implements Response
 		sendError(status, null);
 	}
 
-	public void sendError(EndpointException e) throws IOException {
+	public void sendError(Exception e) throws IOException {
 		Checker.nil(e);
 		_sendContentType(Constants.JSON);
-		setStatus(e.errorCode().httpCode);
 		JsonObject jResponse = new JsonObject();
 		JsonObject jHeader = jResponse.addChild("header");
-		jHeader.put("status", e.errorCode().code);
-		jHeader.put("message", e.getMessage());
-		if(e.content() != null) {
-			jResponse.put("content", e.content());
+		StatusCode errorCode = null;
+		if(EndpointException.class.isAssignableFrom(e.getClass())) {
+			EndpointException ee = ((EndpointException)e);
+			errorCode = ee.errorCode();
+			jHeader.put("message", e.getMessage());
+			if(ee.content() != null) {
+				jResponse.put("content", ee.content());
+			}
 		}
+		else {
+			errorCode = StatusCodes.UNEXPECTED;
+			jHeader.put("message", e.toString());
+		}
+		setStatus(errorCode.httpCode);
+		jHeader.put("status", errorCode.code);
 		PrintWriter out = getWriter();
 		jResponse.write(out);
 		out.println();
