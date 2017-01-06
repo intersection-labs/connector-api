@@ -232,7 +232,7 @@ public abstract class Entity<I extends Instance<?>> {
 	public I insert(I i, Connection c) {
 		Checker.nil(i);
 		Checker.nil(c);
-		_checkLoadedInto(c);
+		_checkConnection(c);
 		if(i.persisted()) {
 			throw new IllegalArgumentException("entity has already been persisted");
 		}
@@ -282,7 +282,7 @@ public abstract class Entity<I extends Instance<?>> {
 	public boolean update(I i, Connection c) {
 		Checker.nil(i);
 		Checker.nil(c);
-		_checkLoadedInto(c);
+		_checkConnection(c);
 		_checkPersisted(i);
 		if(!i.updated()) {
 			return false;
@@ -310,7 +310,7 @@ public abstract class Entity<I extends Instance<?>> {
 	public void delete(I i, Connection c) {
 		Checker.nil(i);
 		Checker.nil(c);
-		_checkLoadedInto(c);
+		_checkConnection(c);
 		_checkPersisted(i);
 		logger().log(info("deleting {} with id {}", instanceName(), i.id()));
 		// Process dependencies:
@@ -353,9 +353,12 @@ public abstract class Entity<I extends Instance<?>> {
 		}
 	}
 
-	private void _checkLoadedInto(Connection c) {
+	private void _checkConnection(Connection c) {
+		if(c.closed()) {
+			throw new IllegalUsageException("connection is closed");
+		}
 		if(_db != c.database()) {
-			throw new IllegalArgumentException(x("entity '{}' is not available in this connection's database", name()));
+			throw new IllegalUsageException(x("entity '{}' is not available in this connection's database", name()));
 		}
 	}
 
@@ -400,7 +403,7 @@ public abstract class Entity<I extends Instance<?>> {
 	public I find(Long id, Connection c) {
 		Checker.nil(c);
 		Checker.min(id, 1);
-		_checkLoadedInto(c);
+		_checkConnection(c);
 		return c.run(_findById, id).single();
 	}
 	

@@ -1,11 +1,12 @@
 package im.connector.test.data;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import static java.lang.System.*;
 import static org.junit.Assert.*;
 import io.unequal.reuse.data.*;
 import io.unequal.reuse.http.Env;
-import io.unequal.reuse.util.Checker;
+import io.unequal.reuse.util.IllegalUsageException;
 import static io.unequal.reuse.util.Util.*;
 import im.connector.api.data.*;
 import im.connector.api.rest.App;
@@ -47,7 +48,7 @@ public class UnitTester {
 			ContactFields.get().find(1L, c);
 			fail();
 		}
-		catch(IllegalArgumentException iae) {
+		catch(IllegalUsageException iae) {
 			out.println(iae.getMessage());
 		}
 		_db.load(new ConnectorModel());
@@ -58,6 +59,66 @@ public class UnitTester {
 		catch(IllegalArgumentException iae) {
 			out.println(iae.getMessage());
 		}
+		// Instance tests:
+		Goblin goblin = new Goblin();
+		assertFalse(goblin.persisted());
+		out.print("Testing id... ");
+		try {
+			goblin.id(1L);
+			fail();
+		}
+		catch(IllegalArgumentException iae) {
+			out.println(iae.getMessage());
+		}
+		out.print("Testing timeCreated... ");
+		try {
+			goblin.timeCreated(new Date());
+			fail();
+		}
+		catch(IllegalArgumentException iae) {
+			out.println(iae.getMessage());
+		}
+		out.print("Testing timeUpdated... ");
+		try {
+			goblin.timeUpdated(new Date());
+			fail();
+		}
+		catch(IllegalArgumentException iae) {
+			out.println(iae.getMessage());
+		}
+		out.print("Testing mandatory contraints... ");
+		try {
+			goblin.temperament(null);
+			fail();
+		}
+		catch(MandatoryConstraintException mce) {
+			out.println(mce.getMessage());
+		}
+		out.print("Testing loading... ");
+		try {
+			Goblins.get().insert(goblin, c);
+			fail();
+		}
+		catch(IllegalUsageException iue) {
+			out.println(iue.getMessage());
+		}		
+		_db.load(new GoblinHorde());
+		out.print("Testing update before insert... ");
+		try {
+			Goblins.get().update(goblin, c);
+			fail();
+		}
+		catch(IllegalArgumentException iae) {
+			out.println(iae.getMessage());
+		}		
+		out.print("Testing delete before insert... ");
+		try {
+			Goblins.get().delete(goblin, c);
+			fail();
+		}
+		catch(IllegalArgumentException iae) {
+			out.println(iae.getMessage());
+		}		
 		// Delete existing data:
 		for(UserEntry entry : _users) {
 			out.println(x("Deleting {}... ", entry.personalEmail));
@@ -70,14 +131,6 @@ public class UnitTester {
 			}
 			out.println("Done.");
 		}
-		out.print("Testing mandatory contraints... ");
-		try {
-			_users.get(0).user().status(null);
-			fail();
-		}
-		catch(MandatoryConstraintException mce) {
-			out.println(mce);
-		}
 		// Insert users again:
 		for(UserEntry entry : _users) {
 			assertFalse(entry.user.persisted());
@@ -86,7 +139,31 @@ public class UnitTester {
 			assertTrue(entry.user.persisted());
 			out.println("Done.");
 		}
+		// Close connection:
 		c.close();
-		// TODO attempt to do ops after the connection is closed
+		out.print("Testing connection closure on insert... ");
+		try {
+			Users.get().insert(new User(), c);
+			fail();
+		}
+		catch(IllegalUsageException iue) {
+			out.println(iue.getMessage());
+		}
+		out.print("Testing connection closure on update... ");
+		try {
+			Users.get().update(_users.get(0).user, c);
+			fail();
+		}
+		catch(IllegalUsageException iue) {
+			out.println(iue.getMessage());
+		}
+		out.print("Testing connection closure on delete... ");
+		try {
+			Users.get().delete(new User(), c);
+			fail();
+		}
+		catch(IllegalUsageException iue) {
+			out.println(iue.getMessage());
+		}
 	}
 }

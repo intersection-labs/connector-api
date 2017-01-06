@@ -39,6 +39,18 @@ public class Connection implements AutoCloseable {
 		}
 	}
 
+	public boolean closed() {
+		try {
+			return _c.isClosed();
+		}
+		catch(SQLException sqle) {
+			// TODO log instead
+			sqle.printStackTrace(System.err);
+			// TODO actually close it
+			return true;
+		}
+	}
+
 	long insert(String sql, int[] types, Object[] args) {
 		try {
 			PreparedStatement ps = _c.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
