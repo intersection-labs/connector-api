@@ -155,7 +155,6 @@ class GoogleField {
 	}
 	
 	private String _translate(String rel) {
-		System.out.println("REL: "+rel);
 		if(rel == null) {
 			return null;
 		}

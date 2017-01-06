@@ -35,7 +35,7 @@ public class GoogleAuthConfirmEndpointV1 extends UserEndpoint {
 		params.put("code", code);
 		params.put("client_id", App.googleClientId());
 		params.put("client_secret", App.googleClientSecret());
-		params.put("redirect_uri", App.url()+GoogleService.OAUTH_CONFIRM_URL);
+		params.put("redirect_uri", App.url()+":"+App.port()+GoogleService.OAUTH_CONFIRM_URL);
 		params.put("grant_type", "authorization_code");
 		String body = HttpClient.post("https://accounts.google.com/o/oauth2/token", params);
 		// Returns:

@@ -107,7 +107,7 @@ class EndpointServlet extends HttpServlet {
 		catch(Exception e) {
 			resp.sendError(e);
 			if(!EndpointException.class.isAssignableFrom(e.getClass())) {
-				_logger.log(Level.SEVERE, "Unknown error", e);
+				_logger.log(Level.SEVERE, "Unexpected error", e);
 			}
 		}
 		finally {

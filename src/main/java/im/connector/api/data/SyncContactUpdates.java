@@ -56,10 +56,10 @@ public class SyncContactUpdates extends Entity<SyncContactUpdate> {
 	public SyncContactUpdates() {
 		super("sync_contact_updates");
 		parent = property(SyncEntry.class, "parent", "parent_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
-		side = property(Side.class, "to", "to", Flag.MANDATORY, Flag.READ_ONLY);
+		side = property(Side.class, "side", "side", Flag.MANDATORY, Flag.READ_ONLY);
 		operation = property(Operation.class, "operation", "operation", Flag.MANDATORY, Flag.READ_ONLY);
 		result = property(Result.class, "result", "result", Flag.MANDATORY, Flag.READ_ONLY);
-		contact = property(Contact.class, "contact", "contact_id", OnDelete.RESTRICT, Flag.MANDATORY, Flag.READ_ONLY);
+		contact = property(Contact.class, "contact", "contact_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
 	}
 
 	public Property<?>[] naturalKey() {

@@ -45,7 +45,7 @@ public class SyncFieldUpdates extends Entity<SyncFieldUpdate> {
 		parent = property(SyncContactUpdate.class, "parent", "parent_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
 		operation = property(Operation.class, "op", "operation", Flag.MANDATORY, Flag.READ_ONLY);
 		piece = property(Piece.class, "piece", "piece", Flag.MANDATORY, Flag.READ_ONLY);
-		field = property(ContactField.class, "field", "field_id", OnDelete.RESTRICT, Flag.READ_ONLY);
+		field = property(ContactField.class, "field", "field_id", OnDelete.CASCADE, Flag.READ_ONLY);
 		before = property(String.class, "before", "before", Flag.READ_ONLY);
 		after = property(String.class, "after", "after", Flag.READ_ONLY);
 	}

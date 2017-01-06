@@ -35,8 +35,8 @@ public class SyncEntries extends Entity<SyncEntry> {
 	public SyncEntries() {
 		super("sync_entries");
 		account = property(Account.class, "account", "account_id", OnDelete.CASCADE, Flag.MANDATORY, Flag.READ_ONLY);
-		started = property(Date.class, "started", "started", Flag.MANDATORY, Flag.READ_ONLY);
-		completed = property(Date.class, "completed", "completed");
+		started = property(Date.class, "started", "time_started", Flag.MANDATORY, Flag.READ_ONLY);
+		completed = property(Date.class, "completed", "time_completed");
 		updateCount = property(Integer.class, "updateCount", "update_count");
 	}
 

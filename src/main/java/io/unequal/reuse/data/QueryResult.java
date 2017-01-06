@@ -1,7 +1,6 @@
 package io.unequal.reuse.data;
 import java.util.List;
 import java.util.Iterator;
-import java.util.Comparator;
 import java.util.Collections;
 import io.unequal.reuse.util.ImmutableList;
 import io.unequal.reuse.util.IntegrityException;
@@ -10,15 +9,15 @@ import io.unequal.reuse.data.Query.Direction;
 
 public class QueryResult<I extends Instance<?>> {
 
-	private final ImmutableList<I> _results;
+	private final List<I> _results;
 
 	// For Connection:
 	QueryResult(List<I> results) {
-		_results = new ImmutableList<>(results);
+		_results = results;
 	}
 	
 	public ImmutableList<I> list() {
-		return _results;
+		return new ImmutableList<>(_results);
 	}
 	
 	public Iterator<I> iterate() {
