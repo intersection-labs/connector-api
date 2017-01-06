@@ -15,30 +15,29 @@ public class App {
 	private static final String _GOOGLE_CLIENT_SECRET = "GOOGLE_CLIENT_SECRET";
 	
 	public static void loadConfig() {
-		Config config = Config.get();
-		config.load(_PORT, Integer.class);
-		config.load(_ENV, Env.class);
-		config.load(_APP_URL, URL.class);
-		config.load(_WEB_APP_URL, URL.class);
-		config.load(_DATABASE_URL, String.class);
-		config.load(_GOOGLE_CLIENT_ID, String.class);
-		config.load(_GOOGLE_CLIENT_SECRET, String.class);		
+		Config.load(_PORT, Integer.class);
+		Config.load(_ENV, Env.class);
+		Config.load(_APP_URL, URL.class);
+		Config.load(_WEB_APP_URL, URL.class);
+		Config.load(_DATABASE_URL, String.class);
+		Config.load(_GOOGLE_CLIENT_ID, String.class);
+		Config.load(_GOOGLE_CLIENT_SECRET, String.class);		
 	}
 
 	public static Integer port() {
-		return (Integer)Config.get().get(_PORT);
+		return (Integer)Config.get(_PORT);
 	}
 	
 	public static Env env() {
-		return (Env)Config.get().get(_ENV);
+		return (Env)Config.get(_ENV);
 	}
 	
 	public static URL url() {
-		return (URL)Config.get().get(_APP_URL);
+		return (URL)Config.get(_APP_URL);
 	}
 
 	public static URL webAppUrl() {
-		return (URL)Config.get().get(_WEB_APP_URL);
+		return (URL)Config.get(_WEB_APP_URL);
 	}
 	
 	public static String domain() {
@@ -53,15 +52,15 @@ public class App {
 	}
 
 	public static String databaseUrl() {
-		return (String)Config.get().get(_DATABASE_URL);
+		return (String)Config.get(_DATABASE_URL);
 	}
 
 	public static String googleClientId() {
-		return (String)Config.get().get(_GOOGLE_CLIENT_ID);
+		return (String)Config.get(_GOOGLE_CLIENT_ID);
 	}
 
 	public static String googleClientSecret() {
-		return (String)Config.get().get(_GOOGLE_CLIENT_SECRET);
+		return (String)Config.get(_GOOGLE_CLIENT_SECRET);
 	}
 
 }
