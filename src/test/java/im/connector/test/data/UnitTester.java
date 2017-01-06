@@ -80,60 +80,13 @@ public class UnitTester {
 		}
 		// Insert users again:
 		for(UserEntry entry : _users) {
+			assertFalse(entry.user.persisted());
 			out.println(x("Inserting {}... ", entry.user.fullName()));
 			entry.insert(c);
+			assertTrue(entry.user.persisted());
 			out.println("Done.");
 		}
-		
-		
-		
 		c.close();
-		
 		// TODO attempt to do ops after the connection is closed
-		
-		//User lisa = _addUser("Lisa", "Smith", "lisa.connector@gmail.com", "lisa.smith@innoventive.com", false);
-		
-		/*
-		boolean recreate = false;
-		User lisa = _addUser("Lisa", "Smith", "lisa.connector@gmail.com", "lisa.smith@innoventive.com", recreate);
-		User carlos = _addUser("Carlos", "Silva", "hiCarlosSilva@gmail.com", "carlos@connector.im", recreate);
-		_addUser("Jon", "Turnbull", "jon.turnbul@gmail.com", "jon@connector.im", recreate);
-		_addUser("Michael", "Kramskoy", "selflogs@gmail.com", null, recreate);
-		_addUser("Tanya", "Karagodova", "tati.karagodova@gmail.com", null, recreate);
-		_addUser("Bogdan", "Geleta", "bogdan.geleta@gmail.com", null, recreate);
-		_addUser("Filipa", "Fernandes", "pipa.fernandes@gmail.com", null, recreate);
-		_addUser("Connor", "McFadden", "connormcfadden7@gmail.com", null, recreate);
-		*/
-	}
-
-	private User _addUser(String firstName, String lastName, String pEmail, String wEmail, boolean recreate) {
-		Checker.empty(firstName);
-		Checker.empty(lastName);
-		Checker.empty(pEmail);
-		try(Connection c = _db.connect()) {
-			User user = Users.get().with(pEmail, FieldType.EMAIL, c);
-			if(recreate) {
-				if(user != null) {
-					//Users.get().delete(user);
-					out.println("Deleted existing "+firstName);
-				}
-				user = null;
-			}
-			if(user == null) {
-				out.print(recreate ? "Re-creating "+firstName+"... " : "Creating "+firstName+"... ");
-				user = new User().firstName(firstName).lastName(lastName).status(Users.Status.REGISTERED);
-				Users.get().insert(user, c);
-				UserField pEmailField = new UserField(user, FieldType.EMAIL, "Personal email", pEmail);
-				UserFields.get().insert(pEmailField, c);
-				if(wEmail != null) {
-					UserField wEmailField = new UserField(user, FieldType.EMAIL, "Work email", wEmail);
-					UserFields.get().insert(wEmailField, c);
-				}
-				Account account = new Account(Accounts.Type.GOOGLE, user, pEmailField);
-				Accounts.get().insert(account, c);
-				out.println("done.");
-			}
-			return user;
-		}
 	}
 }

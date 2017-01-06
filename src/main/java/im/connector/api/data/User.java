@@ -3,13 +3,11 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.data;
+import java.util.Date;
 import java.util.List;
-import java.util.Iterator;
 import io.unequal.reuse.data.ActiveInstance;
-import io.unequal.reuse.data.Query;
 import io.unequal.reuse.data.QueryResult;
 import io.unequal.reuse.data.Connection;
-import io.unequal.reuse.http.JsonObject;
 
 
 public class User extends ActiveInstance<Users> implements Person<UserField> {
@@ -52,5 +50,29 @@ public class User extends ActiveInstance<Users> implements Person<UserField> {
 
 	public QueryResult<Contact> contacts(Connection c) {
 		return Contacts.get().listActiveFor(this, c);
+	}
+
+	// TODO should this logic be in the endpoint only?
+	public Invitation connectWith(User anotherUser, Contact contact, List<UserField> shared, Connection c) {
+		Contacts.get().update(contact.connection(anotherUser), c);
+		for(UserField f : shared) {
+			SharedFields.get().insert(new SharedField(f, this, anotherUser), c);
+		}
+		return Invitations.get().insert(new Invitation(this, anotherUser), c);
+	}
+	
+	// TODO should this logic be in the endpoint only?
+	public void accept(Invitation i, Contact contact, List<UserField> sharedBack, Connection c) {
+		User inviter = i.from(c);
+		i.timeAccepted(new Date());
+		Invitations.get().update(i, c);
+		Contacts.get().update(contact.connection(inviter), c);
+		for(UserField f : sharedBack) {
+			// Register a new shared field:
+			SharedFields.get().insert(new SharedField(f, this, inviter), c);
+			// TODO Remove the corresponding saved field, if any:
+			// _replaceSharedField(contact, f);
+			// _replaceSharedField(inviterContact, f);
+		}
 	}
 }

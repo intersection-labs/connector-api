@@ -229,7 +229,7 @@ public abstract class Entity<I extends Instance<?>> {
 	}
 
 	// Data management methods:	
-	public void insert(I i, Connection c) {
+	public I insert(I i, Connection c) {
 		Checker.nil(i);
 		Checker.nil(c);
 		_checkLoadedInto(c);
@@ -276,6 +276,7 @@ public abstract class Entity<I extends Instance<?>> {
 		logger().log(info("inseting {}", instanceName()));
 		i.update(id, c.insert(_insertSql, sqlTypes, args), true);
 		i.flush();
+		return i;
 	}
 
 	public boolean update(I i, Connection c) {
@@ -295,7 +296,7 @@ public abstract class Entity<I extends Instance<?>> {
 		while(it.hasNext()) {
 			Entry<Property<?>,Object> entry = it.next();
 			sb.append(entry.getKey().columnName());
-			sb.append("='").append(entry.getKey().unwrap(entry.getValue())).append("'");
+			sb.append("='").append(entry.getValue()).append("'");
 			if(it.hasNext()) {
 				sb.append(",");
 			}
