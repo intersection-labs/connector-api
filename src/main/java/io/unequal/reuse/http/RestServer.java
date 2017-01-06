@@ -7,6 +7,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+
+import im.connector.api.rest.App;
 import io.unequal.reuse.util.Checker;
 
 
@@ -44,7 +46,7 @@ public class RestServer {
 		if(_server.isRunning()) {
 			throw new IllegalStateException("server is already running");
 		}
-		ServletHolder holder = new ServletHolder(new EndpointServlet(endpoint, _settings.database()));
+		ServletHolder holder = new ServletHolder(new EndpointServlet(endpoint, _settings.database(), App.webAppUrl().toString()));
 		for(String route : routes) {
 			_root.addServlet(holder, route);
 		}
