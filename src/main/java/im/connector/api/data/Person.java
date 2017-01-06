@@ -1,6 +1,6 @@
 package im.connector.api.data;
 import io.unequal.reuse.data.Instance;
-import io.unequal.reuse.data.QueryResult;
+
 
 // TODO make this a superclass and merge with Common
 public interface Person<F extends Instance<?>> {

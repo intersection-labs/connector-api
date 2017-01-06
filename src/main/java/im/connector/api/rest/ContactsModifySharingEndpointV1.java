@@ -3,10 +3,9 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.rest;
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.http.JsonObject;
 import io.unequal.reuse.http.Request;

@@ -17,7 +17,7 @@ public class Query<I extends Instance<?>> {
 	private final Entity<I> _entity;
 	private final List<Predicate> _predicates;
 	private final List<Property<?>> _params;
-	private final List<_Sort> _sort;
+	private final List<_OrderBy> _orderBy;
 	private Integer _limit;
 	private Integer _offset;
 	private String _sql;
@@ -27,7 +27,7 @@ public class Query<I extends Instance<?>> {
 		_entity = entity;
 		_predicates = new ArrayList<>();
 		_params = new ArrayList<>();
-		_sort = new ArrayList<>();
+		_orderBy = new ArrayList<>();
 		_limit = NOT_SET;
 		_offset = NOT_SET;
 		_sql = null;
@@ -61,7 +61,7 @@ public class Query<I extends Instance<?>> {
 		if(p.entity() != _entity) {
 			throw new IllegalArgumentException(x("property {} cannot be used to sort entity {}", p.fullName(), _entity.name()));
 		}
-		_sort.add(new _Sort(p, direction));
+		_orderBy.add(new _OrderBy(p, direction));
 		return this;
 	}
 
@@ -119,6 +119,17 @@ public class Query<I extends Instance<?>> {
 					sb.append(" AND ");
 				}
 			}
+			if(!_orderBy.isEmpty()) {
+				sb.append(" ORDER BY ");
+				Iterator<_OrderBy> itOrderBy = _orderBy.iterator();
+				while(itOrderBy.hasNext()) {
+					_OrderBy ob = itOrderBy.next();
+					sb.append(ob.property.columnName()).append(" ").append(ob.direction);
+					if(itOrderBy.hasNext()) {
+						sb.append(",");
+					}
+				}
+			}
 			// TODO order by
 			if(_limit != NOT_SET) {
 				sb.append(" LIMIT ").append(_limit == null ? "?" : _limit);
@@ -151,10 +162,10 @@ public class Query<I extends Instance<?>> {
 		}
 	}
 
-	private class _Sort {
+	private class _OrderBy {
 		public final Property<?> property;
 		public final Direction direction;
-		public _Sort(Property<?> p, Direction d) {
+		public _OrderBy(Property<?> p, Direction d) {
 			property = p;
 			direction = d;
 		}

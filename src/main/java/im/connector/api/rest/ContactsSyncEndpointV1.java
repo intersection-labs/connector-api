@@ -3,10 +3,8 @@
 // contained in this source code file without our prior consent is forbidden. If you have an interest 
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.rest;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import com.google.gdata.util.ServiceException;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.http.Request;
 import io.unequal.reuse.http.Response;

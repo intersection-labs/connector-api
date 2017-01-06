@@ -4,14 +4,11 @@
 // in using any part of this source code in your software, please contact us on listening@connector.im.
 package im.connector.api.rest;
 import io.unequal.reuse.http.Endpoint;
-import io.unequal.reuse.http.Request.HttpMethod;
-import io.unequal.reuse.http.MethodNotAllowedException;
 import io.unequal.reuse.http.Request;
 import io.unequal.reuse.http.Response;
 import io.unequal.reuse.data.Connection;
 import im.connector.api.data.Session;
 import im.connector.api.data.Sessions;
-import im.connector.api.data.User;
 
 
 public abstract class UserEndpoint extends Endpoint {
