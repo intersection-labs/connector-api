@@ -1,19 +1,22 @@
 package im.connector.test.data;
 import static java.lang.System.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Properties;
 import im.connector.api.data.*;
 import im.connector.api.rest.App;
 import io.unequal.reuse.data.Connection;
 import io.unequal.reuse.data.Database;
 import io.unequal.reuse.http.Env;
 import io.unequal.reuse.util.Checker;
+import io.unequal.reuse.util.Config;
 
 
 public class DataSetup {
 
 	// TYPE:
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		new DataSetup(true).setUp();
 	}
 	
@@ -21,9 +24,14 @@ public class DataSetup {
 	private final boolean _recreate; 
 	private final Connection _c;
 
-	public DataSetup(boolean recreate) {
+	public DataSetup(boolean recreate) throws IOException {
+		Properties props = new Properties();
+		props.load(getClass().getResourceAsStream("dev.properties"));
+		out.println(props.getProperty("DATABASE_URL"));
+		Config.source(props);
 		_recreate = recreate;
 		App.loadConfig();
+		out.println(App.databaseUrl());
 		final Database db = new Database(App.databaseUrl(), App.env() == Env.DEV);
 		db.load(new ConnectorModel());
 		_c = db.connect();

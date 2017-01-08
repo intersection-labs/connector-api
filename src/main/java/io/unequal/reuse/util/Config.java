@@ -1,6 +1,7 @@
 package io.unequal.reuse.util;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Properties;
 import java.net.URL;
 import java.net.MalformedURLException;
 import static io.unequal.reuse.util.Util.*;
@@ -9,6 +10,11 @@ import static io.unequal.reuse.util.Util.*;
 public class Config {
 
 	private static final Map<String,Object> _values = new HashMap<>();
+	private static Properties _source = null;
+
+	public static void source(Properties props) {
+		_source = props;
+	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Object load(String name, Class<?> type) {
@@ -19,8 +25,7 @@ public class Config {
 		if(!type.isEnum()) {
 			Checker.in(type, Integer.class, Long.class, String.class, URL.class);
 		}
-		String value = System.getenv(name);
-		name = name.toLowerCase();
+		String value = _source == null ? System.getenv(name) : _source.getProperty(name);
 		if(value == null) {
 			throw new IntegrityException(x("could not find environment variable '{}'", name));
 		}
@@ -55,6 +60,6 @@ public class Config {
 	
 	public static Object get(String name) {
 		Checker.empty(name);
-		return _values.get(name.toLowerCase());
+		return _values.get(name);
 	}
 }
