@@ -47,7 +47,7 @@ public class App {
 			return null;
 		}
 		else {
-			return host.substring(host.indexOf('.')-1);
+			return host.substring(host.indexOf('.')+1);
 		}
 	}
 
